@@ -2,6 +2,7 @@ package com.simplytest.server.api;
 
 import java.util.HashMap;
 
+import org.iban4j.IbanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,7 @@ import com.simplytest.server.repo.ContractRepository;
 import com.simplytest.server.utils.Result;
 import com.simplytest.server.utils.Updatable;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @Validated
@@ -93,7 +95,8 @@ public class AccountController
     @GetMapping(path = "{accountId}/receive")
     public Result<Boolean, Error> receiveMoney(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
-            @PathVariable @Valid long accountId, @RequestParam double amount)
+            @PathVariable @Valid long accountId, @RequestParam double amount,
+            HttpServletResponse response)
     {
         var id = new Id(JWT.getId(token), accountId);
 
@@ -104,6 +107,7 @@ public class AccountController
 
             if (!result.successful())
             {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return Result.error(result.error());
             }
 
@@ -115,9 +119,19 @@ public class AccountController
     @PostMapping(path = "{accountId}/send")
     public Result<Boolean, Error> sendMoney(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
-            @PathVariable @Valid long accountId, @RequestBody @Valid SendMoney data)
+            @PathVariable @Valid long accountId, @RequestBody SendMoney data,
+            HttpServletResponse response)
     {
         var id = new Id(JWT.getId(token), accountId);
+
+        try
+        {
+            IbanUtil.validate(data.target().raw());
+        } catch (Exception e)
+        {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return Result.error(Error.BadIban);
+        }
 
         try (var updatable = getAccount(id))
         {
@@ -126,6 +140,7 @@ public class AccountController
 
             if (!result.successful())
             {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return Result.error(result.error());
             }
 
@@ -138,12 +153,13 @@ public class AccountController
     public Result<Boolean, Error> transferMoney(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
             @PathVariable @Valid long accountId,
-            @RequestBody @Valid TransferMoney data)
+            @RequestBody @Valid TransferMoney data, HttpServletResponse response)
     {
         var id = new Id(JWT.getId(token), accountId);
 
         if (id.parent() != data.target().value().parent())
         {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return Result.error(Error.BadTarget);
         }
 
@@ -156,6 +172,7 @@ public class AccountController
 
             if (source == null || target == null)
             {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return Result.error(Error.BadTarget);
             }
 
@@ -163,6 +180,7 @@ public class AccountController
 
             if (!result.successful())
             {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return Result.error(result.error());
             }
 

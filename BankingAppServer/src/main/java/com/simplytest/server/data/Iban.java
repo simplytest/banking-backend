@@ -1,8 +1,5 @@
 package com.simplytest.server.data;
 
-import com.simplytest.server.validator.ValidIban;
-
-@ValidIban
 public class Iban
 {
     private String iban;

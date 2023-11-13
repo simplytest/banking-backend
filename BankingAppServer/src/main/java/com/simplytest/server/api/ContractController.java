@@ -38,6 +38,7 @@ import com.simplytest.server.repo.ContractRepository;
 import com.simplytest.server.utils.Result;
 import com.simplytest.server.utils.Updatable;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
 @Validated
@@ -67,12 +68,13 @@ public class ContractController
     @ResponseBody
     @PostMapping(path = "login/{id}")
     public Result<String, Error> login(@PathVariable long id,
-            @RequestBody String password)
+            @RequestBody String password, HttpServletResponse response)
     {
         var contract = findContract(id);
 
         if (!contract.value().authenticate(password))
         {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return Result.error(Error.BadCredentials);
         }
 
@@ -84,7 +86,8 @@ public class ContractController
     @ResponseStatus(HttpStatus.CREATED)
     public Result<ContractResult, Error> registerContract(
             @RequestBody @Valid CustomerData data,
-            @RequestParam(required = false) Double initialBalance)
+            @RequestParam(required = false) Double initialBalance,
+            HttpServletResponse response)
     {
         Customer customer;
 
@@ -108,6 +111,8 @@ public class ContractController
         if (!contract.successful())
         {
             repository.delete(dbEntry);
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+
             return Result.error(contract.error());
         }
 
@@ -138,7 +143,8 @@ public class ContractController
     @ResponseBody
     @DeleteMapping()
     public Result<Boolean, Error> dismissContract(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token)
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
+            HttpServletResponse response)
     {
         var id = JWT.getId(token);
 
@@ -147,6 +153,7 @@ public class ContractController
 
         if (!result.successful())
         {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             return Result.error(result.error());
         }
 
@@ -158,7 +165,8 @@ public class ContractController
     @ResponseBody
     public Result<Boolean, Error> changeDispoLimit(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
-            @PathVariable(required = true) Double amount)
+            @PathVariable(required = true) Double amount,
+            HttpServletResponse response)
     {
         var id = JWT.getId(token);
 
@@ -168,6 +176,7 @@ public class ContractController
 
             if (!result.successful())
             {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return Result.error(result.error());
             }
 
@@ -179,7 +188,8 @@ public class ContractController
     @ResponseBody
     public Result<Boolean, Error> changeSendLimit(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
-            @PathVariable(required = true) Double amount)
+            @PathVariable(required = true) Double amount,
+            HttpServletResponse response)
     {
         var id = JWT.getId(token);
 
@@ -189,6 +199,7 @@ public class ContractController
 
             if (!result.successful())
             {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return Result.error(result.error());
             }
 
@@ -241,7 +252,7 @@ public class ContractController
     @ResponseBody
     public Result<Boolean, Error> closeAccount(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
-            @PathVariable @Valid long accountId)
+            @PathVariable @Valid long accountId, HttpServletResponse response)
     {
         var id = JWT.getId(token);
 
@@ -251,6 +262,7 @@ public class ContractController
 
             if (!result.successful())
             {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return Result.error(result.error());
             }
 
