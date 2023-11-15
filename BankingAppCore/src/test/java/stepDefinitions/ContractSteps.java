@@ -1,4 +1,4 @@
-package com.simplytest.core.test.java.stepDefinitions;
+package stepDefinitions;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

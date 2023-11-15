@@ -1,4 +1,4 @@
-package com.simplytest.core.test.java.stepDefinitions;
+package stepDefinitions;
 
 import java.util.ArrayList;
 import java.util.HashMap;

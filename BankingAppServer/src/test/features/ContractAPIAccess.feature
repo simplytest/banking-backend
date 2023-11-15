@@ -14,7 +14,7 @@ Feature:  Contract API Access
     Given Ich bin ein registrierter Privatkunde
     When Ich meinen Vertrag kündige
     Then die Transaktion war erfolgreich
-    And mein Vertrag wurde gelöscht
+    And mein Vertrag wurde entfernt
 
   Scenario: Immobilien-Finanzierungs Vertrag über API abschliessen
     Given Ich bin ein Privatkunde

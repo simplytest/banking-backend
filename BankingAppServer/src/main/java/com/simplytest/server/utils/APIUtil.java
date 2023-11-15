@@ -1,4 +1,4 @@
-package com.simplytest.server.test.java.utils;
+package com.simplytest.server.utils;
 
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;

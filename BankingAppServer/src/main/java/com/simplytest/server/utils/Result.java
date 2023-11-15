@@ -9,7 +9,7 @@ public class Result<R, E>
     private Optional<R> result;
     private Optional<ApiError<E>> error;
 
-    private Result(Optional<R> result, Optional<ApiError<E>> error)
+    public Result(Optional<R> result, Optional<ApiError<E>> error)
     {
         this.error = error;
         this.result = result;

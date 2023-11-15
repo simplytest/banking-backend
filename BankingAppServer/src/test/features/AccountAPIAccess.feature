@@ -4,6 +4,7 @@ Feature:  Account API Access
 
   Scenario: Kontostand über API abfragen
     Given Ich bin registrierter Privatkunde mit Konto von Typ "Giro Konto" mit aktuellem Kontostand 500 €
+    When Ich den aktuellen Kontostand von "Giro Konto" abfrage
     Then beträgt der aktuelle Kontostand von "Giro Konto" 500 €
 
   Scenario: Zahlung über API empfangen
