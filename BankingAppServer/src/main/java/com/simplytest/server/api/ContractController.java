@@ -83,7 +83,6 @@ public class ContractController
 
     @ResponseBody
     @PostMapping()
-    @ResponseStatus(HttpStatus.CREATED)
     public Result<ContractRegistrationResult, Error> registerContract(
             @RequestBody @Valid CustomerData data,
             @RequestParam(required = false) Double initialBalance,
@@ -127,7 +126,10 @@ public class ContractController
         dbEntry.setContract(contract.value());
         repository.save(dbEntry);
 
-        var result = new ContractRegistrationResult(dbEntry.id(), JWT.generate(dbEntry.id()));
+        var result = new ContractRegistrationResult(dbEntry.id(),
+                JWT.generate(dbEntry.id()));
+        response.setStatus(HttpServletResponse.SC_CREATED);
+
         return Result.success(result);
     }
 
