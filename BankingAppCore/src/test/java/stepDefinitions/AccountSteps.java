@@ -1,5 +1,7 @@
 package stepDefinitions;
 
+import static com.simplytest.core.accounts.AccountType.getType;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -7,21 +9,18 @@ import org.iban4j.Iban;
 import org.junit.jupiter.api.Assertions;
 
 import com.simplytest.core.Error;
-import com.simplytest.core.accounts.AccountType;
-import com.simplytest.core.contracts.Contract;
 import com.simplytest.core.accounts.AccountFixedRate;
 import com.simplytest.core.accounts.AccountGiro;
 import com.simplytest.core.accounts.AccountOnCall;
+import com.simplytest.core.accounts.AccountType;
 import com.simplytest.core.accounts.IAccount;
-import com.simplytest.core.test.java.mocks.ContractsDBMock;
+import com.simplytest.core.contracts.Contract;
 import com.simplytest.core.utils.Result;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-
-import static com.simplytest.core.accounts.AccountType.getType;
-
+import mocks.ContractsDBMock;
 
 public class AccountSteps
 {
