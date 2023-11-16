@@ -81,14 +81,14 @@ public class AccountController
 
     @ResponseBody
     @GetMapping(path = "{accountId}/balance")
-    public double getCurrentBalance(
+    public Result<Double, Error> getCurrentBalance(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
             @PathVariable @Valid long accountId)
     {
 
         var id = new Id(JWT.getId(token), accountId);
         var account = getAccount(id).value();
-        return account.getBalance();
+        return Result.success( Double.valueOf(account.getBalance()));
     }
 
     @ResponseBody

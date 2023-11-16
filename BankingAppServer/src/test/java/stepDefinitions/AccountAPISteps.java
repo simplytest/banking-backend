@@ -63,14 +63,11 @@ public class AccountAPISteps
     @When("Ich den aktuellen Kontostand von {string} abfrage")
     public void ich_den_aktuellen_kontostand_abfrage(String type)
     {
-        world.lastResult = new  Result<Double, Error>(Optional.of(APIUtil.<Double> request(
+        world.lastResult = APIUtil.<Result<Double, Error>> request(
                 String.format("accounts/%d/balance", world.account.child()),
-                world.contract.JWT(), HttpMethod.GET, null, TypeToken.get(double.class))), null);
-
-//        world.lastResult = APIUtil.<Result<Double, Error>> request(
-//                String.format("accounts/%d/balance", world.account.child()),
-//                world.contract.JWT(), HttpMethod.GET, null, TypeToken
-//                        .getParameterized(Result.class, Double.class, Error.class));
+                world.contract.JWT(), HttpMethod.GET, null,
+                        TypeToken.getParameterized(Result.class, Double.class, Error.class)
+        );
     }
 
     @Then("beträgt der aktuelle Kontostand von {string} {int} €")
