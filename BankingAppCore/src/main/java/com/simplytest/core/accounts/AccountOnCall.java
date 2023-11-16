@@ -5,8 +5,6 @@ import com.simplytest.core.utils.Result;
 
 import org.iban4j.Iban;
 
-import com.simplytest.core.AccountType;
-
 public class AccountOnCall extends Account
 {
     private double runtime;

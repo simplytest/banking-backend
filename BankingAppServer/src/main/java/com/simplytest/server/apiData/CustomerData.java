@@ -1,8 +1,8 @@
-package com.simplytest.server.data;
+package com.simplytest.server.apiData;
 
 import java.util.Date;
 
-import com.simplytest.core.Address;
+import com.simplytest.core.customers.Address;
 import com.simplytest.server.validator.ValidCustomer;
 
 import jakarta.validation.constraints.NotEmpty;

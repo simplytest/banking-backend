@@ -1,7 +1,5 @@
 package com.simplytest.core.customers;
 
-import com.simplytest.core.Address;
-
 public abstract class Customer
 {
     private double transactionFee;

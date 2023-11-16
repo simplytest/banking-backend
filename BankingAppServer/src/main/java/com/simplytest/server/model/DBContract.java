@@ -1,7 +1,7 @@
 package com.simplytest.server.model;
 
 import com.google.gson.Gson;
-import com.simplytest.core.Contract;
+import com.simplytest.core.contracts.Contract;
 import com.simplytest.server.json.Json;
 
 import jakarta.persistence.Column;

@@ -1,4 +1,4 @@
-package com.simplytest.server.data;
+package com.simplytest.server.apiData;
 
 public class Iban
 {

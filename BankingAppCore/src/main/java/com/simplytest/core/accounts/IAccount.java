@@ -2,7 +2,6 @@ package com.simplytest.core.accounts;
 
 import org.iban4j.Iban;
 
-import com.simplytest.core.AccountType;
 import com.simplytest.core.Error;
 import com.simplytest.core.utils.Result;
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.simplytest.core.Address;
+import com.simplytest.core.customers.Address;
 import com.simplytest.core.customers.Customer;
 import com.simplytest.server.auth.JWT;
 import com.simplytest.server.model.DBContract;

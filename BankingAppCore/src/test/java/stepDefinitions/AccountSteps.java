@@ -7,8 +7,8 @@ import org.iban4j.Iban;
 import org.junit.jupiter.api.Assertions;
 
 import com.simplytest.core.Error;
-import com.simplytest.core.AccountType;
-import com.simplytest.core.Contract;
+import com.simplytest.core.accounts.AccountType;
+import com.simplytest.core.contracts.Contract;
 import com.simplytest.core.accounts.AccountFixedRate;
 import com.simplytest.core.accounts.AccountGiro;
 import com.simplytest.core.accounts.AccountOnCall;
@@ -20,7 +20,7 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
-import static com.simplytest.core.AccountType.getType;
+import static com.simplytest.core.accounts.AccountType.getType;
 
 
 public class AccountSteps

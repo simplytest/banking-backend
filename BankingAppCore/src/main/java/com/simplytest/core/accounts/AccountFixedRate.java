@@ -4,7 +4,6 @@ import com.simplytest.core.Error;
 
 import org.iban4j.Iban;
 
-import com.simplytest.core.AccountType;
 import com.simplytest.core.utils.Result;
 
 public class AccountFixedRate extends Account

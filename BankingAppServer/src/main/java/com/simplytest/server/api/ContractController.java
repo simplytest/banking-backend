@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.simplytest.core.AccountType;
-import com.simplytest.core.Contract;
+import com.simplytest.core.accounts.AccountType;
+import com.simplytest.core.contracts.Contract;
 import com.simplytest.core.Error;
 import com.simplytest.core.Id;
 import com.simplytest.core.accounts.IAccount;
@@ -30,9 +30,9 @@ import com.simplytest.core.customers.CustomerBusiness;
 import com.simplytest.core.customers.CustomerPrivate;
 import com.simplytest.core.utils.Pair;
 import com.simplytest.server.auth.JWT;
-import com.simplytest.server.data.CustomerData;
-import com.simplytest.server.data.ContractResult;
-import com.simplytest.server.data.RealEstateAccount;
+import com.simplytest.server.apiData.CustomerData;
+import com.simplytest.server.apiData.ContractRegistrationResult;
+import com.simplytest.server.apiData.RealEstateAccount;
 import com.simplytest.server.model.DBContract;
 import com.simplytest.server.repo.ContractRepository;
 import com.simplytest.server.utils.Result;
@@ -84,7 +84,7 @@ public class ContractController
     @ResponseBody
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public Result<ContractResult, Error> registerContract(
+    public Result<ContractRegistrationResult, Error> registerContract(
             @RequestBody @Valid CustomerData data,
             @RequestParam(required = false) Double initialBalance,
             HttpServletResponse response)
@@ -127,7 +127,7 @@ public class ContractController
         dbEntry.setContract(contract.value());
         repository.save(dbEntry);
 
-        var result = new ContractResult(dbEntry.id(), JWT.generate(dbEntry.id()));
+        var result = new ContractRegistrationResult(dbEntry.id(), JWT.generate(dbEntry.id()));
         return Result.success(result);
     }
 

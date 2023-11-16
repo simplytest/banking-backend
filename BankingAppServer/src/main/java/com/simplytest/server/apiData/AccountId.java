@@ -1,4 +1,4 @@
-package com.simplytest.server.data;
+package com.simplytest.server.apiData;
 
 import com.simplytest.core.Id;
 import com.simplytest.server.validator.ValidAccountId;

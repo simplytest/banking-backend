@@ -1,10 +1,8 @@
 package stepDefinitions;
 
-import java.util.Optional;
-
-import com.simplytest.core.AccountType;
-import com.simplytest.core.Contract;
-import com.simplytest.server.data.*;
+import com.simplytest.core.accounts.AccountType;
+import com.simplytest.core.contracts.Contract;
+import com.simplytest.server.apiData.*;
 import com.simplytest.server.utils.APIUtil;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
@@ -34,7 +32,7 @@ public class AccountAPISteps
     }
 
 
-    public static Id createAccount(ContractResult contract, String type)
+    public static Id createAccount(ContractRegistrationResult contract, String type)
     {
         if (type.contains("Giro"))
         {

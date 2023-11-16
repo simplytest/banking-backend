@@ -6,7 +6,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 import com.simplytest.core.Id;
-import com.simplytest.server.data.AccountId;
+import com.simplytest.server.apiData.AccountId;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;

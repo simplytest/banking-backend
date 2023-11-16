@@ -2,6 +2,7 @@ package com.simplytest.server.api;
 
 import java.util.ArrayList;
 
+import com.simplytest.server.utils.ApiError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

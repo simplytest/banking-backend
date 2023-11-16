@@ -1,4 +1,4 @@
-package com.simplytest.core;
+package com.simplytest.core.accounts;
 
 public enum AccountType
 {

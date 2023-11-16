@@ -3,7 +3,7 @@ package com.simplytest.core.test.java.mocks;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 
-import com.simplytest.core.Contract;
+import com.simplytest.core.contracts.Contract;
 import com.simplytest.core.Error;
 import com.simplytest.core.Id;
 import com.simplytest.core.accounts.IAccount;

@@ -5,8 +5,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.simplytest.server.data.CustomerData;
-import com.simplytest.server.data.CustomerData.CustomerType;
+import com.simplytest.server.apiData.CustomerData;
+import com.simplytest.server.apiData.CustomerData.CustomerType;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;

@@ -2,8 +2,6 @@ package com.simplytest.server.utils;
 
 import java.util.Optional;
 
-import com.simplytest.server.api.ApiError;
-
 public class Result<R, E>
 {
     private Optional<R> result;

@@ -1,10 +1,13 @@
-package com.simplytest.core;
+package com.simplytest.core.contracts;
 
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
+import com.simplytest.core.accounts.AccountType;
+import com.simplytest.core.Error;
+import com.simplytest.core.Id;
 import com.simplytest.core.accounts.AccountFixedRate;
 import com.simplytest.core.accounts.AccountGiro;
 import com.simplytest.core.accounts.AccountOnCall;

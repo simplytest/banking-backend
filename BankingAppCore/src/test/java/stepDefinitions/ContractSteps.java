@@ -6,7 +6,7 @@ import java.util.Calendar;
 
 import org.junit.jupiter.api.Assertions;
 
-import com.simplytest.core.Contract;
+import com.simplytest.core.contracts.Contract;
 import com.simplytest.core.Error;
 import com.simplytest.core.customers.Customer;
 import com.simplytest.core.customers.CustomerBusiness;

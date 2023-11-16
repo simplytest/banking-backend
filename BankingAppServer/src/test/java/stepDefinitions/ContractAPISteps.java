@@ -1,10 +1,10 @@
 package stepDefinitions;
 
 import com.google.gson.reflect.TypeToken;
-import com.simplytest.core.Address;
+import com.simplytest.core.customers.Address;
 import com.simplytest.core.Error;
-import com.simplytest.server.data.ContractResult;
-import com.simplytest.server.data.CustomerData;
+import com.simplytest.server.apiData.ContractRegistrationResult;
+import com.simplytest.server.apiData.CustomerData;
 import com.simplytest.server.utils.APIUtil;
 import com.simplytest.server.utils.Result;
 import io.cucumber.java.en.Given;
@@ -66,7 +66,7 @@ public class ContractAPISteps {
         world.contract = createContract(Optional.empty());
     }
 
-    private ContractResult createContract(Optional<Double> initialBalance)
+    private ContractRegistrationResult createContract(Optional<Double> initialBalance)
     {
         String endpoint;
 
@@ -79,9 +79,9 @@ public class ContractAPISteps {
                     initialBalance.get());
         }
 
-        var result = APIUtil.<Result<ContractResult, Error>> request(endpoint, "",
+        var result = APIUtil.<Result<ContractRegistrationResult, Error>> request(endpoint, "",
                 HttpMethod.POST, world.customer, TypeToken.getParameterized(Result.class,
-                        ContractResult.class, Error.class));
+                        ContractRegistrationResult.class, Error.class));
 
         return result.value();
     }
