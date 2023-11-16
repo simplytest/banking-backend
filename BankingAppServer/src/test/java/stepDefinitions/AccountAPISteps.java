@@ -2,6 +2,7 @@ package stepDefinitions;
 
 import java.util.Optional;
 
+import com.simplytest.core.AccountType;
 import com.simplytest.core.Contract;
 import com.simplytest.server.data.*;
 import com.simplytest.server.utils.APIUtil;
@@ -145,9 +146,9 @@ public class AccountAPISteps
         var data = APIUtil.<Contract> request("contracts", world.contract.JWT(), HttpMethod.GET,
                 null, TypeToken.getParameterized(Contract.class));
 
-        // todo: über kv iterieren und id abgreifen
-        var account = data.getAccounts().values().stream().filter( a -> a.getType().name().equals(type)).findFirst();
-        Assert.assertTrue("Missing account", account.isPresent());
+        var account = data.getAccount(AccountType.getType(type));
+        Assert.assertTrue("Missing account", account.successful());
+        world.account = account.value().first();
 
 //        var balance = APIUtil.<Double> request(
 //                String.format("accounts/%d/balance", world.account.child()),

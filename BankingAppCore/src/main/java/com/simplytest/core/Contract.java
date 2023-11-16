@@ -59,6 +59,25 @@ public class Contract
         return Expected.success(rtn);
     }
 
+    public Expected<Pair<Id, IAccount>, Error> getAccount(AccountType accountType)
+    {
+        Pair<Id, IAccount> rtn = null;
+        for (var accountKV:accounts.entrySet()
+             ) {
+            if (accountKV.getValue().getType().equals(accountType)) {
+                rtn = Pair.of(accountKV.getKey(), accountKV.getValue());
+                break;
+            }
+        }
+
+        if (rtn == null)
+        {
+            return Expected.error(Error.NotFound);
+        }
+
+        return Expected.success(rtn);
+    }
+
     private String hash(String string)
     {
         return BCrypt.withDefaults().hashToString(12, string.toCharArray());

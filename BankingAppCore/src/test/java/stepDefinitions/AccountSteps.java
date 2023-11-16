@@ -20,6 +20,9 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
+import static com.simplytest.core.AccountType.getType;
+
+
 public class AccountSteps
 {
     private HashMap<AccountType, IAccount> accounts = new HashMap<AccountType, IAccount>();
@@ -27,21 +30,6 @@ public class AccountSteps
     private Contract contract;
 
     private static final float delta = 0.0000001f;
-
-    public static AccountType getType(String type)
-    {
-        switch (type)
-        {
-        case "Giro Konto":
-            return AccountType.GiroAccount;
-        case "Tagesgeld Konto":
-            return AccountType.OnCallAccount;
-        case "Festgeld Konto":
-            return AccountType.FixedRateAccount;
-        }
-
-        throw new UnsupportedOperationException();
-    }
 
     public static Error getError(String string)
     {
