@@ -7,22 +7,26 @@ import org.iban4j.Iban;
 
 public class AccountRealEstate extends Account
 {
+    private double creditAmount;
     private double remainingAmount;
-    private double clearanceRate;
+    private double payedAmount;
+
+
     private double runtimeAmount;
     private double repaymentRate;
-    private double creditAmount;
-    private double payedAmount;
-    private double monthlyRate;
+    private double monthlyAmount;
 
-    public AccountRealEstate(double repaymentRate)
+    public AccountRealEstate(double repaymentRate, double amount)
     {
+        super();
         this.repaymentRate = repaymentRate;
+        this.creditAmount = amount;
+        setBalance(-amount);
     }
 
-    public double getMonthlyRate()
+    public double getMonthlyAmount()
     {
-        return monthlyRate;
+        return monthlyAmount;
     }
 
     public double getPayedAmount()
@@ -33,11 +37,6 @@ public class AccountRealEstate extends Account
     public double getCreditAmount()
     {
         return creditAmount;
-    }
-
-    public double getClearanceRate()
-    {
-        return clearanceRate;
     }
 
     public double getRuntimeAmount()
@@ -55,9 +54,9 @@ public class AccountRealEstate extends Account
         this.payedAmount = payedAmount;
     }
 
-    public void setMonthlyRate(double monthlyRate)
+    public void setMonthlyAmount(double monthlyAmount)
     {
-        this.monthlyRate = monthlyRate;
+        this.monthlyAmount = monthlyAmount;
     }
 
     public void setCreditAmount(double creditAmount)
@@ -65,10 +64,6 @@ public class AccountRealEstate extends Account
         this.creditAmount = creditAmount;
     }
 
-    public void setClearanceRate(double clearanceRate)
-    {
-        this.clearanceRate = clearanceRate;
-    }
 
     public void setRuntimeAmount(double runtimeAmount)
     {
@@ -92,9 +87,9 @@ public class AccountRealEstate extends Account
         return Result.error(Error.NotSupported);
     }
 
-    public Result<Error> calculateMonthlyRate(double amount)
+    public Result<Error> calculateMonthlyRate()
     {
-        monthlyRate = (creditAmount + repaymentRate + interestRate) / 12;
+        monthlyAmount = (creditAmount * (repaymentRate + interestRate)) / 12;
         return Result.success();
     }
 }

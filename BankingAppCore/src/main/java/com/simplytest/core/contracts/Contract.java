@@ -143,16 +143,15 @@ public class Contract
         return new Pair<>(id, rtn);
     }
 
-    public Pair<Id, IAccount> openReaEstateAccount(double repaymentRate,
-            double amount)
+    public Pair<Id, IAccount> openReaEstateAccount(double repaymentRate, double amount)
     {
-        var rtn = new AccountRealEstate(repaymentRate);
-        rtn.calculateMonthlyRate(amount);
+        var rtn = new AccountRealEstate(repaymentRate, amount);
+        rtn.calculateMonthlyRate();
 
         var id = this.id.create();
         this.accounts.put(id, rtn);
 
-        return Pair.of(id, rtn);
+        return new Pair<>(id, rtn);
     }
 
     public Result<Error> closeAccount(Id id)
