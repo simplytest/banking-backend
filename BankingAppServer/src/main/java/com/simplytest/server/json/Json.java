@@ -5,6 +5,7 @@ import java.util.Optional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.internal.bind.DateTypeAdapter;
+import com.simplytest.core.Id;
 import com.simplytest.core.accounts.Account;
 import com.simplytest.core.accounts.IAccount;
 import com.simplytest.core.customers.Customer;
@@ -21,6 +22,7 @@ public class Json
 
         builder.registerTypeAdapterFactory(DateTypeAdapter.FACTORY);
 
+        builder.registerTypeAdapter(Id.class, new IDAdapter());
         builder.registerTypeAdapter(Optional.class, new OptionalAdapter<>());
         builder.registerTypeAdapter(Account.class, new AbstractAdapter<Account>());
         builder.registerTypeAdapter(Customer.class, new AbstractAdapter<Customer>());
