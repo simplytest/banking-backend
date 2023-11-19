@@ -11,16 +11,22 @@ public class AccountRealEstate extends Account
     private double remainingAmount;
     private double payedAmount;
 
-
     private double runtimeAmount;
     private double repaymentRate;
     private double monthlyAmount;
 
+    protected AccountRealEstate()
+    {
+        super();
+    }
+
     public AccountRealEstate(double repaymentRate, double amount)
     {
         super();
+
         this.repaymentRate = repaymentRate;
         this.creditAmount = amount;
+
         setBalance(-amount);
     }
 
@@ -63,7 +69,6 @@ public class AccountRealEstate extends Account
     {
         this.creditAmount = creditAmount;
     }
-
 
     public void setRuntimeAmount(double runtimeAmount)
     {
