@@ -18,11 +18,13 @@ import testContext.World;
 import java.util.Calendar;
 import java.util.Optional;
 
-public class ContractAPISteps {
+public class ContractAPISteps
+{
 
     private final World world;
 
-    public ContractAPISteps(World world) {
+    public ContractAPISteps(World world)
+    {
         this.world = world;
     }
 
@@ -66,21 +68,19 @@ public class ContractAPISteps {
         world.contract = createContract(Optional.empty());
     }
 
-    private ContractRegistrationResult createContract(Optional<Double> initialBalance)
+    private ContractRegistrationResult createContract(
+            Optional<Double> initialBalance)
     {
-        String endpoint;
+        var endpoint = "contracts";
 
-        if (initialBalance.isEmpty())
+        if (!initialBalance.isEmpty())
         {
-            endpoint = String.format("contracts");
-        } else
-        {
-            endpoint = String.format("contracts?initialBalance=%s",
-                    initialBalance.get());
+            endpoint += String.format("?initialBalance=%s", initialBalance.get());
         }
 
-        var result = APIUtil.<Result<ContractRegistrationResult, Error>> request(endpoint, "",
-                HttpMethod.POST, world.customer, TypeToken.getParameterized(Result.class,
+        var result = APIUtil.<Result<ContractRegistrationResult, Error>> request(
+                endpoint, "", HttpMethod.POST, world.customer,
+                TypeToken.getParameterized(Result.class,
                         ContractRegistrationResult.class, Error.class));
 
         return result.value();
@@ -108,11 +108,4 @@ public class ContractAPISteps {
         Assertions.assertThrows(HttpClientErrorException.class, () -> APIUtil
                 .request("contracts", world.contract.JWT(), HttpMethod.GET, null));
     }
-
-
-
-
-
-
-
 }
