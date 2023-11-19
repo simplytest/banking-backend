@@ -124,42 +124,35 @@ public class AccountAPISteps
     public void ich_einen_neues_real_estate_erstelle()
     {
         var data = APIUtil.<Pair<Id, Object>> request("contracts/accounts",
-                world.contract.JWT(), HttpMethod.POST,
-                new RealEstateAccount(100, 100),
+                world.contract.JWT(), HttpMethod.POST, new RealEstateAccount(5, 100),
                 TypeToken.getParameterized(Pair.class, Id.class, Object.class));
 
         world.account = data.first();
-
     }
 
     @Then("erhalte ich ein Konto von Typ {string}")
     public void erhalte_ich_ein_konto_von_typ(String type)
     {
         var data = APIUtil.<Contract> request("contracts", world.contract.JWT(),
-                HttpMethod.GET, null, TypeToken.getParameterized(Contract.class));
+                HttpMethod.GET, null, TypeToken.get(Contract.class));
 
         var account = data.getAccount(AccountType.getType(type));
         Assert.assertTrue("Missing account", account.successful());
         world.account = account.value().first();
-
-        // var balance = APIUtil.<Double> request(
-        // String.format("accounts/%d/balance", world.account.child()),
-        // world.contract.JWT(), HttpMethod.GET, null,
-        // TypeToken.get(double.class));
-        // Assertions.assertTrue(
-        // data.getBody().contains(type.replaceAll("Konto", "").trim()));
     }
 
     @Then("erhalte ich ein Konto von Typ {string} dazu")
     public void erhalte_ich_ein_konto_von_typ_dazu(String type)
     {
-        var data = APIUtil.request("contracts", world.contract.JWT(), HttpMethod.GET,
-                null);
+        var data = APIUtil.<Contract> request("contracts", world.contract.JWT(),
+                HttpMethod.GET, null, TypeToken.get(Contract.class));
 
-        Assertions.assertTrue(data.getBody().contains("00001"));
-        Assertions.assertTrue(data.getBody().contains("00002"));
+        var accounts = data.getAccounts().entrySet().stream().toList();
+        var last = accounts.get(accounts.size() - 1);
 
-        Assertions.assertTrue(
-                data.getBody().contains(type.replaceAll("Konto", "").trim()));
+        Assertions.assertEquals(last.getKey().parent(), 1);
+        Assertions.assertEquals(last.getKey().child(), 2);
+
+        Assertions.assertTrue(last.getValue().getClass().toString().endsWith(type));
     }
 }
