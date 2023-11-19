@@ -19,7 +19,7 @@ Feature:  Contract API Access
   Scenario: Immobilien-Finanzierungs Vertrag über API abschliessen
     Given Ich bin ein Privatkunde
     When Ich einen neuen Vertrag abschliesse
-    And Ich einen neuen Real Estate Account erstelle
+    And Ich ein neues Immobilienkredit Konto mit Kredit von 100 € und Tilgung von 5 % erstelle
     Then erhalte ich eine gültige Vertrag-ID
-    And erhalte ich ein Konto von Typ "RealEstate" dazu
-    And beträgt der aktuelle Kontostand von "Immobilien Konto" -100 €
+    And erhalte ich ein Konto von Typ "Immobilienkredit Konto"
+    And beträgt der aktuelle Kontostand von "Immobilienkredit Konto" -100 €

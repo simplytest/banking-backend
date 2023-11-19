@@ -14,6 +14,8 @@ public enum AccountType
                 return AccountType.OnCallAccount;
             case "Festgeld Konto":
                 return AccountType.FixedRateAccount;
+            case "Immobilienkredit Konto":
+                return AccountType.RealEstateAccount;
         }
 
         throw new UnsupportedOperationException();

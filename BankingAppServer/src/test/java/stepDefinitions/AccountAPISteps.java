@@ -120,11 +120,11 @@ public class AccountAPISteps
                         Error.class));
     }
 
-    @When("Ich einen neuen Real Estate Account erstelle")
-    public void ich_einen_neues_real_estate_erstelle()
+    @When("Ich ein neues Immobilienkredit Konto mit Kredit von {int} € und Tilgung von {int} % erstelle")
+    public void ich_einen_neues_real_estate_account_erstelle(Integer amount, Integer repaymentRate)
     {
         var data = APIUtil.<Pair<Id, Object>> request("contracts/accounts",
-                world.contract.JWT(), HttpMethod.POST, new RealEstateAccount(5, 100),
+                world.contract.JWT(), HttpMethod.POST, new RealEstateAccount(repaymentRate, amount),
                 TypeToken.getParameterized(Pair.class, Id.class, Object.class));
 
         world.account = data.first();
@@ -141,18 +141,4 @@ public class AccountAPISteps
         world.account = account.value().first();
     }
 
-    @Then("erhalte ich ein Konto von Typ {string} dazu")
-    public void erhalte_ich_ein_konto_von_typ_dazu(String type)
-    {
-        var data = APIUtil.<Contract> request("contracts", world.contract.JWT(),
-                HttpMethod.GET, null, TypeToken.get(Contract.class));
-
-        var accounts = data.getAccounts().entrySet().stream().toList();
-        var last = accounts.get(accounts.size() - 1);
-
-        Assertions.assertEquals(last.getKey().parent(), 1);
-        Assertions.assertEquals(last.getKey().child(), 2);
-
-        Assertions.assertTrue(last.getValue().getClass().toString().endsWith(type));
-    }
 }
