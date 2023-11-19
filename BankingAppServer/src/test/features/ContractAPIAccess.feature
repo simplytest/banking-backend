@@ -22,4 +22,4 @@ Feature:  Contract API Access
     And Ich einen neuen Real Estate Account erstelle
     Then erhalte ich eine gültige Vertrag-ID
     And erhalte ich ein Konto von Typ "RealEstate" dazu
-    And beträgt der aktuelle Kontostand von "Immobilien Konto" 0 €
+    And beträgt der aktuelle Kontostand von "Immobilien Konto" -100 €
