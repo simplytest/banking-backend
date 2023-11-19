@@ -123,10 +123,12 @@ public class AccountAPISteps
     @When("Ich einen neuen Real Estate Account erstelle")
     public void ich_einen_neues_real_estate_erstelle()
     {
-        APIUtil.<Pair<Id, Object>> request("contracts/accounts",
+        var data = APIUtil.<Pair<Id, Object>> request("contracts/accounts",
                 world.contract.JWT(), HttpMethod.POST,
                 new RealEstateAccount(100, 100),
                 TypeToken.getParameterized(Pair.class, Id.class, Object.class));
+
+        world.account = data.first();
 
     }
 
