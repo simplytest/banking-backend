@@ -88,7 +88,8 @@ public class AccountController
 
         var id = new Id(JWT.getId(token), accountId);
         var account = getAccount(id).value();
-        return Result.success( Double.valueOf(account.getBalance()));
+
+        return Result.success(account.getBalance());
     }
 
     @ResponseBody
