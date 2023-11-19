@@ -64,21 +64,17 @@ public class Contract
 
     public Expected<Pair<Id, IAccount>, Error> getAccount(AccountType accountType)
     {
-        Pair<Id, IAccount> rtn = null;
-        for (var accountKV:accounts.entrySet()
-             ) {
-            if (accountKV.getValue().getType().equals(accountType)) {
-                rtn = Pair.of(accountKV.getKey(), accountKV.getValue());
-                break;
-            }
-        }
-
-        if (rtn == null)
+        for (var item : accounts.entrySet())
         {
-            return Expected.error(Error.NotFound);
+            if (!item.getValue().getType().equals(accountType))
+            {
+                continue;
+            }
+
+            return Result.success(Pair.of(item.getKey(), item.getValue()));
         }
 
-        return Expected.success(rtn);
+        return Expected.error(Error.NotFound);
     }
 
     private String hash(String string)
@@ -143,7 +139,8 @@ public class Contract
         return new Pair<>(id, rtn);
     }
 
-    public Pair<Id, IAccount> openReaEstateAccount(double repaymentRate, double amount)
+    public Pair<Id, IAccount> openReaEstateAccount(double repaymentRate,
+            double amount)
     {
         var rtn = new AccountRealEstate(repaymentRate, amount);
         rtn.calculateMonthlyRate();

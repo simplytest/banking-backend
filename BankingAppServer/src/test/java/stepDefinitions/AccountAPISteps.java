@@ -31,7 +31,6 @@ public class AccountAPISteps
         this.contractAPISteps = contractAPISteps;
     }
 
-
     public static Id createAccount(ContractRegistrationResult contract, String type)
     {
         if (type.contains("Giro"))
@@ -65,8 +64,7 @@ public class AccountAPISteps
         world.lastResult = APIUtil.<Result<Double, Error>> request(
                 String.format("accounts/%d/balance", world.account.child()),
                 world.contract.JWT(), HttpMethod.GET, null,
-                        TypeToken.getParameterized(Result.class, Double.class, Error.class)
-        );
+                TypeToken.getParameterized(Result.class, Double.class, Error.class));
     }
 
     @Then("beträgt der aktuelle Kontostand von {string} {int} €")
@@ -99,13 +97,14 @@ public class AccountAPISteps
     public void ich_von_auf_ein_gueltiges_internes_konto_ueberweise(String type,
             Integer amount)
     {
-        var target = new AccountId(createAccount(world.contract, "OnCall").toString());
+        var target = new AccountId(
+                createAccount(world.contract, "OnCall").toString());
 
         world.lastResult = APIUtil.<Result<Boolean, Error>> request(
                 String.format("accounts/%d/transfer", world.account.child(), amount),
-                world.contract.JWT(), HttpMethod.POST, new TransferMoney(target, amount),
-                TypeToken.getParameterized(Result.class, Boolean.class,
-                        Error.class));
+                world.contract.JWT(), HttpMethod.POST,
+                new TransferMoney(target, amount), TypeToken
+                        .getParameterized(Result.class, Boolean.class, Error.class));
     }
 
     @When("Ich per API von {string} {int} € auf ein gültiges externes Konto überweise")
@@ -121,38 +120,32 @@ public class AccountAPISteps
                         Error.class));
     }
 
-
-
     @When("Ich einen neuen Real Estate Account erstelle")
     public void ich_einen_neues_real_estate_erstelle()
     {
-        APIUtil.<Pair<Id, Object>> request("contracts/accounts", world.contract.JWT(),
-                HttpMethod.POST, new RealEstateAccount(100, 100),
+        APIUtil.<Pair<Id, Object>> request("contracts/accounts",
+                world.contract.JWT(), HttpMethod.POST,
+                new RealEstateAccount(100, 100),
                 TypeToken.getParameterized(Pair.class, Id.class, Object.class));
 
     }
 
-
-
-
-
-
     @Then("erhalte ich ein Konto von Typ {string}")
     public void erhalte_ich_ein_konto_von_typ(String type)
     {
-        // todo: fix deserialization
-        var data = APIUtil.<Contract> request("contracts", world.contract.JWT(), HttpMethod.GET,
-                null, TypeToken.getParameterized(Contract.class));
+        var data = APIUtil.<Contract> request("contracts", world.contract.JWT(),
+                HttpMethod.GET, null, TypeToken.getParameterized(Contract.class));
 
         var account = data.getAccount(AccountType.getType(type));
         Assert.assertTrue("Missing account", account.successful());
         world.account = account.value().first();
 
-//        var balance = APIUtil.<Double> request(
-//                String.format("accounts/%d/balance", world.account.child()),
-//                world.contract.JWT(), HttpMethod.GET, null, TypeToken.get(double.class));
-//        Assertions.assertTrue(
-//                data.getBody().contains(type.replaceAll("Konto", "").trim()));
+        // var balance = APIUtil.<Double> request(
+        // String.format("accounts/%d/balance", world.account.child()),
+        // world.contract.JWT(), HttpMethod.GET, null,
+        // TypeToken.get(double.class));
+        // Assertions.assertTrue(
+        // data.getBody().contains(type.replaceAll("Konto", "").trim()));
     }
 
     @Then("erhalte ich ein Konto von Typ {string} dazu")
