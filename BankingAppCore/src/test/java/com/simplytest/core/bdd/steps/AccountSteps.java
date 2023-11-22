@@ -1,6 +1,4 @@
-package stepDefinitions;
-
-import static com.simplytest.core.accounts.AccountType.getType;
+package com.simplytest.core.bdd.steps;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,13 +12,13 @@ import com.simplytest.core.accounts.AccountGiro;
 import com.simplytest.core.accounts.AccountOnCall;
 import com.simplytest.core.accounts.AccountType;
 import com.simplytest.core.accounts.IAccount;
+import com.simplytest.core.bdd.mocks.ContractsDBMock;
 import com.simplytest.core.contracts.Contract;
 import com.simplytest.core.utils.Result;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import mocks.ContractsDBMock;
 
 public class AccountSteps
 {
@@ -29,6 +27,21 @@ public class AccountSteps
     private Contract contract;
 
     private static final float delta = 0.0000001f;
+
+    public static AccountType getType(String type)
+    {
+        switch (type)
+        {
+        case "Giro Konto":
+            return AccountType.GiroAccount;
+        case "Tagesgeld Konto":
+            return AccountType.OnCallAccount;
+        case "Festgeld Konto":
+            return AccountType.FixedRateAccount;
+        }
+
+        throw new UnsupportedOperationException();
+    }
 
     public static Error getError(String string)
     {
