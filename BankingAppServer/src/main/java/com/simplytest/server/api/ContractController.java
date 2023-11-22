@@ -2,6 +2,8 @@ package com.simplytest.server.api;
 
 import java.util.Map;
 
+import com.simplytest.core.accounts.AccountType;
+import com.simplytest.core.contracts.Contract;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -20,8 +22,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.simplytest.core.accounts.AccountType;
-import com.simplytest.core.contracts.Contract;
 import com.simplytest.core.Error;
 import com.simplytest.core.Id;
 import com.simplytest.core.accounts.IAccount;
@@ -245,7 +245,7 @@ public class ContractController
 
         try (var contract = findContract(id))
         {
-            return contract.value().openReaEstateAccount(data.repaymentRate(),
+            return contract.value().openRealEstateAccount(data.repaymentRate(),
                     data.amount());
         }
     }
