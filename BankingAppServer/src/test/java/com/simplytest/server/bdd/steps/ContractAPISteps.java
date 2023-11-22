@@ -1,33 +1,27 @@
-package stepDefinitions;
-
-import com.google.gson.reflect.TypeToken;
-import com.simplytest.core.customers.Address;
-import com.simplytest.core.Error;
-import com.simplytest.server.apiData.ContractRegistrationResult;
-import com.simplytest.server.apiData.CustomerData;
-import com.simplytest.server.utils.APIUtil;
-import com.simplytest.server.utils.Result;
-import io.cucumber.java.en.Given;
-import io.cucumber.java.en.Then;
-import io.cucumber.java.en.When;
-import org.junit.jupiter.api.Assertions;
-import org.springframework.http.HttpMethod;
-import org.springframework.web.client.HttpClientErrorException;
-import testContext.World;
+package com.simplytest.server.bdd.steps;
 
 import java.util.Calendar;
 import java.util.Optional;
 
-public class ContractAPISteps
+import org.junit.jupiter.api.Assertions;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.client.HttpClientErrorException;
+
+import com.google.gson.reflect.TypeToken;
+import com.simplytest.core.Error;
+import com.simplytest.core.customers.Address;
+import com.simplytest.server.apiData.ContractRegistrationResult;
+import com.simplytest.server.apiData.CustomerData;
+import com.simplytest.server.bdd.factory.TestFactory;
+import com.simplytest.server.utils.APIUtil;
+import com.simplytest.server.utils.Result;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+
+public class ContractAPISteps extends TestFactory
 {
-
-    private final World world;
-
-    public ContractAPISteps(World world)
-    {
-        this.world = world;
-    }
-
     @Given("Ich bin ein Privatkunde")
     public void ich_bin_ein_privatkunde()
     {
