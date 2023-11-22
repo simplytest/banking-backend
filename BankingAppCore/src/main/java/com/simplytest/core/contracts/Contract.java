@@ -62,21 +62,6 @@ public class Contract
         return Expected.success(rtn);
     }
 
-    public Expected<Pair<Id, IAccount>, Error> getAccount(AccountType accountType)
-    {
-        for (var item : accounts.entrySet())
-        {
-            if (!item.getValue().getType().equals(accountType))
-            {
-                continue;
-            }
-
-            return Result.success(Pair.of(item.getKey(), item.getValue()));
-        }
-
-        return Expected.error(Error.NotFound);
-    }
-
     private String hash(String string)
     {
         return BCrypt.withDefaults().hashToString(12, string.toCharArray());
@@ -136,10 +121,10 @@ public class Contract
         var id = this.id.create();
         this.accounts.put(id, rtn);
 
-        return new Pair<>(id, rtn);
+        return Pair.of(id, rtn);
     }
 
-    public Pair<Id, IAccount> openReaEstateAccount(double repaymentRate,
+    public Pair<Id, IAccount> openRealEstateAccount(double repaymentRate,
             double amount)
     {
         var rtn = new AccountRealEstate(repaymentRate, amount);
@@ -148,7 +133,7 @@ public class Contract
         var id = this.id.create();
         this.accounts.put(id, rtn);
 
-        return new Pair<>(id, rtn);
+        return Pair.of(id, rtn);
     }
 
     public Result<Error> closeAccount(Id id)
