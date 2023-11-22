@@ -6,7 +6,7 @@ on:
 name: 🧪 Run Tests
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     container: fedora:38
 
