@@ -98,10 +98,17 @@ public abstract class Account implements IAccount
                 return Result.error(Error.BadBalance);
             }
 
+            var transfer = target.receiveMoney(amount);
+
+            if (!transfer.successful())
+            {
+                return Result.error(transfer.error());
+            }
+
             balance -= amount;
         }
 
-        return target.receiveMoney(amount);
+        return Result.success();
     }
 
     protected Lock readLock()
