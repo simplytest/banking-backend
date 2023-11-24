@@ -13,3 +13,5 @@ RUN cd BankingAppServer && mvn clean compile assembly:single
 # Set Entrypoint
 
 ENTRYPOINT java -jar BankingAppServer/target/SimplyTest-BankingServer.jar
+
+EXPOSE 5005
