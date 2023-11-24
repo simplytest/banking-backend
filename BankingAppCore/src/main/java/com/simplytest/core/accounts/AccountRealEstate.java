@@ -1,15 +1,18 @@
 package com.simplytest.core.accounts;
 
 import com.simplytest.core.Error;
+import com.simplytest.core.utils.Guard;
 import com.simplytest.core.utils.Result;
 
 import org.iban4j.Iban;
 
 public class AccountRealEstate extends Account
 {
-    private double creditAmount;
     private double remainingAmount;
+
+    private double creditAmount;
     private double payedAmount;
+    private double maxSpecialRepayment;
 
     private double runtimeAmount;
     private double repaymentRate;
@@ -26,6 +29,8 @@ public class AccountRealEstate extends Account
 
         this.repaymentRate = repaymentRate;
         this.creditAmount = amount;
+
+        this.maxSpecialRepayment = creditAmount * 0.05;
 
         setBalance(-amount);
     }
@@ -90,6 +95,27 @@ public class AccountRealEstate extends Account
     public Result<Error> sendMoney(double amount, Iban target)
     {
         return Result.error(Error.NotSupported);
+    }
+
+    @Override
+    public Result<Error> receiveMoney(double amount)
+    {
+        try (var guard = new Guard(readLock()))
+        {
+            if (getBalance() + amount > 0)
+            {
+                return Result.error(Error.BadAmount);
+            }
+
+            if (amount > maxSpecialRepayment)
+            {
+                return Result.error(Error.LimitExceeded);
+            }
+
+            maxSpecialRepayment -= amount;
+        }
+
+        return super.receiveMoney(amount);
     }
 
     public Result<Error> calculateMonthlyRate()
