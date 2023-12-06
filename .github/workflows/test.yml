@@ -20,7 +20,7 @@ jobs:
 
       - name: 🧪 Run Unit Tests
         run: |
-          mvn test -p UnitTests
+          mvn test -P UnitTests
 
       - name: Unit Test Report
         uses: dorny/test-reporter@v1
@@ -33,7 +33,7 @@ jobs:
 
       - name: 🧪 Run Integration Tests
         run: |
-          mvn test -p IntegrationTests
+          mvn test -P IntegrationTests
 
       - name: Integration Test Report
         uses: dorny/test-reporter@v1
