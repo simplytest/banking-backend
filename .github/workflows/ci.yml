@@ -5,8 +5,13 @@ on:
 
 name: 🧪 CI
 
+permissions:
+  contents: read
+  actions: read
+  checks: write
+
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     container: fedora:38
 
