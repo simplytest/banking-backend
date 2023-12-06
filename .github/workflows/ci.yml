@@ -20,7 +20,7 @@ jobs:
 
       - name: 🧪 Run Unit Tests
         run: |
-          mvn test -P UnitTests
+          mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
 
       - name: Unit Test Report
         uses: dorny/test-reporter@v1
@@ -34,7 +34,7 @@ jobs:
 
       - name: 🧪 Run Integration Tests
         run: |
-          mvn test -P IntegrationTests
+          mvn test -Dtest="CucumberIntegrationTest" -Dsurefire.failIfNoSpecifiedTests=false
 
       - name: Integration Test Report
         uses: dorny/test-reporter@v1
