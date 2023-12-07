@@ -32,7 +32,7 @@
                         <configuration>
                             <argLine>-Dcucumber.filter.tags="not @SKIPPED"</argLine>
                             <includes>
-                                <include>CucumberUnitTest</include>
+                                <include>**/CucumberUnitTest</include>
                             </includes>
                             <excludes>
                             </excludes>
@@ -53,7 +53,7 @@
                         <configuration>
                             <argLine>-Dcucumber.filter.tags="not @SKIPPED"</argLine>
                             <includes>
-                                <include>CucumberIntegrationTest</include>
+                                <include>**/CucumberIntegrationTest</include>
                             </includes>
                             <excludes>
                             </excludes>
