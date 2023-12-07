@@ -50,4 +50,4 @@ jobs:
             docker rm Banking-Backend-Demo || true
 
             docker pull ghcr.io/simplytest/banking-backend:latest
-            docker run -d -p 5005:5005 --rm --name=Banking-Backend-Demo ghcr.io/simplytest/banking-backend:latest
+            docker run -d -p 5005:5005 -e "SIMPLYTEST_DEMO=ON" --rm --name=Banking-Backend-Demo ghcr.io/simplytest/banking-backend:latest
