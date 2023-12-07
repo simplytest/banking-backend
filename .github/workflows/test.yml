@@ -27,9 +27,8 @@ jobs:
         if: success() || failure()
         with:
           name: Unit Test Report
-          path: BankingAppCore/target/surefire-reports/*CucumberUnitTest.xml
+          path: "**/*CucumberUnitTest.xml"
           reporter: java-junit
-          fail-on-empty: false
 
 
       - name: 🧪 Run Integration Tests
@@ -41,6 +40,5 @@ jobs:
         if: success() || failure()
         with:
           name: Integration Test Report
-          path: BankingAppServer/target/surefire-reports/*CucumberIntegrationTest.xml
+          path: "**/*CucumberIntegrationTest.xml"
           reporter: java-junit
-          fail-on-empty: false
