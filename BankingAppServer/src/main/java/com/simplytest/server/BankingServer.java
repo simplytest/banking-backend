@@ -23,7 +23,7 @@ public class BankingServer
     @EventListener(ApplicationReadyEvent.class)
     public void initializeDemo()
     {
-        if (System.getenv("SIMPLYTEST_DEMO") != null)
+        if (System.getenv("SIMPLYTEST_DEMO") == null)
         {
             return;
         }

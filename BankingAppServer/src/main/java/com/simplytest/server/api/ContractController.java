@@ -151,6 +151,14 @@ public class ContractController
         var id = JWT.getId(token);
 
         var contract = findContract(id).value();
+
+        if (System.getenv("SIMPLYTEST_DEMO") != null
+                && contract.getCustomer().getFirstName().equals("Demo"))
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.NotSupported);
+        }
+
         var result = contract.dismiss();
 
         if (!result.successful())
