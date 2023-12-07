@@ -3,7 +3,7 @@ on:
   pull_request:
   workflow_dispatch:
 
-name: 🧪 CI
+name: 🧪 Run Tests
 
 jobs:
   test:
@@ -18,27 +18,6 @@ jobs:
         run: |
           dnf install -y java-17-openjdk maven
 
-      - name: 🧪 Run Unit Tests
+      - name: 🧪 Cucumber Tests
         run: |
-          mvn test -p UnitTests
-
-      - name: Unit Test Report
-        uses: dorny/test-reporter@v1
-        if: success() || failure()
-        with:
-          name: Unit Test Report
-          path: "**/*CucumberUnitTest.xml"
-          reporter: java-junit
-
-
-      - name: 🧪 Run Integration Tests
-        run: |
-          mvn test -p IntegrationTests
-
-      - name: Integration Test Report
-        uses: dorny/test-reporter@v1
-        if: success() || failure()
-        with:
-          name: Integration Test Report
-          path: "**/*CucumberIntegrationTest.xml"
-          reporter: java-junit
+          mvn test
