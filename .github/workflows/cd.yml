@@ -4,10 +4,10 @@ on:
     tags:
       - "*"
 
-name: ☕ Build & Deploy
+name: 📦 Continuous Deployment
 
 jobs:
-  build:
+  cd:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +24,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: ⏳ Wait for Continuous Integration
+        uses: lewagon/wait-on-check-action@v1.3.1
+        with:
+          wait-interval: 10
+          check-name: "🧪 Continuous Integration"
+
+          ref: ${{ github.ref }}
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: 🏗️ Build and Publish
         run: |
           docker buildx build -t banking-backend:${{  github.ref_name }} -t banking-backend:latest --load .
@@ -31,11 +40,6 @@ jobs:
           docker image tag banking-backend ghcr.io/simplytest/banking-backend
           docker push -a ghcr.io/simplytest/banking-backend
 
-  deploy:
-    needs: ["build"]
-    runs-on: ubuntu-latest
-
-    steps:
       - name: 🔐 SSH Setup
         uses: appleboy/ssh-action@55dabf81b49d4120609345970c91507e2d734799
         with:

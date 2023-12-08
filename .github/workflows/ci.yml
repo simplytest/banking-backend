@@ -3,10 +3,10 @@ on:
   pull_request:
   workflow_dispatch:
 
-name: 🧪 Run Tests
+name: 🧪 Continuous Integration
 
 jobs:
-  test:
+  ci:
     runs-on: ubuntu-latest
     container: fedora:38
 
