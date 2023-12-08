@@ -11,12 +11,12 @@ jobs:
     container: fedora:38
 
     steps:
-      - name: 📥 Checkout
-        uses: actions/checkout@v3
-
       - name: 🏗️ Setup Dependencies
         run: |
           dnf install -y java-17-openjdk maven git
+
+      - name: 📥 Checkout
+        uses: actions/checkout@v3
 
       - name: 🧪 Unit Tests
         run: |
@@ -28,7 +28,6 @@ jobs:
         with:
           name: 📋 Unit Test Report
           reporter: java-junit
-          max-annotations: "0"
           path: "**/*CucumberUnitTest.xml"
 
       - name: 🧪 Integration Tests
@@ -41,5 +40,4 @@ jobs:
         with:
           name: 📋 Integration Test Report
           reporter: java-junit
-          max-annotations: "0"
           path: "**/*CucumberIntegrationTest.xml"
