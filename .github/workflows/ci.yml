@@ -3,10 +3,10 @@ on:
   pull_request:
   workflow_dispatch:
 
-name: 🧪 Continuous Integration
+name: 🧪 Run Tests
 
 jobs:
-  ci:
+  test:
     runs-on: ubuntu-latest
     container: fedora:38
 
@@ -47,18 +47,3 @@ jobs:
           name: 📋 Integration Test Report
           reporter: java-junit
           path: "**/*CucumberIntegrationTest.xml"
-
-      - name: 📦 Deploy
-        if: success() && startsWith(github.ref, 'refs/tags/v')
-        uses: ./.github/actions/cd
-        with:
-          host: ${{ secrets.HOST }}
-          port: ${{ secrets.PORT }}
-
-          user: ${{ secrets.USERNAME }}
-          password: ${{ secrets.PASSWORD }}
-
-          repo-user: ${{ github.actor }}
-          repo-password: ${{ secrets.GITHUB_TOKEN }}
-
-          tag: ${{ github.ref_name }}
