@@ -30,4 +30,4 @@ jobs:
           fail-on-empty: false
           max-annotations: "0"
           reporter: java-junit
-          path: "BankingAppCore/target/surefire-reports/*"
+          path: "BankingAppCore/target/surefire-reports/*.xml"
