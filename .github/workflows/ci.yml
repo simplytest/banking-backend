@@ -28,4 +28,18 @@ jobs:
         with:
           name: 📋 Unit Test Report
           reporter: java-junit
+          max-annotations: "0"
           path: "**/*CucumberUnitTest.xml"
+
+      - name: 🧪 Integration Tests
+        run: |
+          mvn test -Dtest="CucumberIntegrationTest" -Dsurefire.failIfNoSpecifiedTests=false
+
+      - name: 📋 Integration Test Report
+        uses: phoenix-actions/test-reporting@v8
+        if: success() || failure()
+        with:
+          name: 📋 Integration Test Report
+          reporter: java-junit
+          max-annotations: "0"
+          path: "**/*CucumberIntegrationTest.xml"
