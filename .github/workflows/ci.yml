@@ -28,21 +28,27 @@ jobs:
         run: |
           mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
 
+      - name: 🧪 Integration Tests
+        run: |
+          mvn test -Dtest="CucumberIntegrationTest" -Dsurefire.failIfNoSpecifiedTests=false
+
+      - name: 🔍 Check for duplicate reports
+        id: skip
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          concurrent_skipping: "always"
+
       - name: 📋 Unit Test Report
         uses: phoenix-actions/test-reporting@v8
-        if: success() || failure()
+        if: steps.skip.should_skip != 'true' && (success() || failure())
         with:
           name: 📋 Unit Test Report
           reporter: java-junit
           path: "**/*CucumberUnitTest.xml"
 
-      - name: 🧪 Integration Tests
-        run: |
-          mvn test -Dtest="CucumberIntegrationTest" -Dsurefire.failIfNoSpecifiedTests=false
-
       - name: 📋 Integration Test Report
         uses: phoenix-actions/test-reporting@v8
-        if: success() || failure()
+        if: steps.skip.should_skip != 'true' && (success() || failure())
         with:
           name: 📋 Integration Test Report
           reporter: java-junit
