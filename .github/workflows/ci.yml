@@ -27,6 +27,7 @@ jobs:
         if: success() || failure()
         with:
           name: 📋 Unit Test Report
-          path: "BankingAppCore/target/surefire-reports/*"
-          reporter: java-junit
           fail-on-empty: false
+          max-annotations: "0"
+          reporter: java-junit
+          path: "BankingAppCore/target/surefire-reports/*"
