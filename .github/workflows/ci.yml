@@ -23,11 +23,9 @@ jobs:
           mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
 
       - name: 📋 Unit Test Report
-        uses: dorny/test-reporter@v1
+        uses: phoenix-actions/test-reporting@v8
         if: success() || failure()
         with:
           name: 📋 Unit Test Report
-          fail-on-empty: false
-          max-annotations: "0"
           reporter: java-junit
-          path: "BankingAppCore/target/surefire-reports/*.xml"
+          path: "**/*CucumberUnitTest.xml"
