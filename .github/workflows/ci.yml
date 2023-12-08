@@ -1,0 +1,32 @@
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+name: 🧪 Run Tests
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: fedora:38
+
+    steps:
+      - name: 📥 Checkout
+        uses: actions/checkout@v3
+
+      - name: 🏗️ Setup Dependencies
+        run: |
+          dnf install -y java-17-openjdk maven git
+
+      - name: 🧪 Unit Tests
+        run: |
+          mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
+
+      - name: 📋 Unit Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: 📋 Unit Test Report
+          path: "BankingAppCore/target/surefire-reports/*"
+          reporter: java-junit
+          fail-on-empty: false
