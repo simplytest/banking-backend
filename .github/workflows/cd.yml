@@ -40,7 +40,7 @@ jobs:
           docker image tag banking-backend ghcr.io/simplytest/banking-backend
           docker push -a ghcr.io/simplytest/banking-backend
 
-      - name: 🔐 SSH Setup
+      - name: 📦 Deploy
         uses: appleboy/ssh-action@55dabf81b49d4120609345970c91507e2d734799
         with:
           host: ${{ secrets.HOST }}
