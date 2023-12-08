@@ -1,6 +1,35 @@
 name: 📦 Continuous Deployment (CD)
 description: Deploy new version to instance
 
+inputs:
+  host:
+    required: true
+    description: The host to deploy to
+
+  port:
+    required: true
+    description: The ssh port of the host
+
+  user:
+    required: true
+    description: User from which to deploy
+
+  password:
+    required: true
+    description: The password for the user
+
+  tag:
+    required: true
+    description: The tag for the docker image
+
+  repo-user:
+    required: true
+    description: The user for the (docker-)repository login
+
+  repo-password:
+    required: true
+    description: The password for the (docker-)repository login
+
 runs:
   using: "composite"
   steps:
@@ -11,13 +40,13 @@ runs:
       uses: docker/login-action@v3
       with:
         registry: ghcr.io
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        username: ${{ inputs.repo-user }}
+        password: ${{ inputs.repo-password }}
 
     - name: 🏗️ Build and Publish
       shell: bash
       run: |
-        docker buildx build -t banking-backend:${{  github.ref_name }} -t banking-backend:latest --load .
+        docker buildx build -t banking-backend:${{ inputs.tag }} -t banking-backend:latest --load .
 
         docker image tag banking-backend ghcr.io/simplytest/banking-backend
         docker push -a ghcr.io/simplytest/banking-backend
@@ -25,11 +54,11 @@ runs:
     - name: 📦 Deploy
       uses: appleboy/ssh-action@55dabf81b49d4120609345970c91507e2d734799
       with:
-        host: ${{ secrets.HOST }}
-        port: ${{ secrets.PORT }}
+        host: ${{ inputs.host }}
+        port: ${{ inputs.port }}
 
-        username: ${{ secrets.USERNAME }}
-        password: ${{ secrets.PASSWORD }}
+        username: ${{ inputs.user }}
+        password: ${{ inputs.password }}
 
         script: |
           docker stop Banking-Backend-Demo || true

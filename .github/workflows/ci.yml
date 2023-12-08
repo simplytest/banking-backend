@@ -51,3 +51,14 @@ jobs:
       - name: 📦 Deploy
         if: success() && startsWith(github.ref, 'refs/tags/v')
         uses: ./.github/actions/cd
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+
+          user: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+
+          repo-user: ${{ github.actor }}
+          repo-password: ${{ secrets.GITHUB_TOKEN }}
+
+          tag: ${{ github.ref_name }}
