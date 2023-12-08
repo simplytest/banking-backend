@@ -33,14 +33,16 @@ jobs:
           mvn test -Dtest="CucumberIntegrationTest" -Dsurefire.failIfNoSpecifiedTests=false
 
       - name: 🔍 Check for duplicate reports
-        id: skip
+        id: skip_check
         uses: fkirc/skip-duplicate-actions@v5
         with:
-          concurrent_skipping: "always"
+          cancel_others: true
+          skip_after_successful_duplicate: true
+          concurrent_skipping: "same_content_newer"
 
       - name: 📋 Unit Test Report
         uses: phoenix-actions/test-reporting@v8
-        if: steps.skip.should_skip != 'true' && (success() || failure())
+        if: steps.skip_check.outputs.should_skip != 'true' && (success() || failure())
         with:
           name: 📋 Unit Test Report
           reporter: java-junit
@@ -48,7 +50,7 @@ jobs:
 
       - name: 📋 Integration Test Report
         uses: phoenix-actions/test-reporting@v8
-        if: steps.skip.should_skip != 'true' && (success() || failure())
+        if: steps.skip_check.outputs.should_skip != 'true' && (success() || failure())
         with:
           name: 📋 Integration Test Report
           reporter: java-junit
