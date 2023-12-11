@@ -1,4 +1,4 @@
-package com.simplytest.core.bdd;
+package com.simplytest.server.bdd;
 
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.IncludeEngines;
@@ -10,9 +10,9 @@ import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
 
 @Suite
 @IncludeEngines("cucumber")
-@SelectClasspathResource("com/simplytest/core/bdd")
+@SelectClasspathResource("com/simplytest/server/bdd")
 @ConfigurationParameter(key = PLUGIN_PROPERTY_NAME, value = "pretty")
-@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.simplytest.core.bdd")
-public class CucumberTest
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "com.simplytest.server.bdd")
+public class CucumberIntegrationTest
 {
 }

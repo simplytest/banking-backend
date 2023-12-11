@@ -1,0 +1,64 @@
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+name: 🧪 Continuous Integration
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    container: fedora:38
+
+    steps:
+      - name: 🏗️ Setup Dependencies
+        run: |
+          dnf install -y java-17-openjdk maven git
+
+      - name: 📥 Checkout
+        uses: actions/checkout@v3
+
+      - name: 🛠️ Checkout Workaround
+        # The Checkout GitHub action has problems when running inside of a docker container (as we do).
+        # see: https://github.com/actions/checkout/issues/363
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: 👀 Sonar Scan
+        if: github.ref == 'refs/heads/master'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
+        run: |
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Demo-App-backend -Dsonar.projectName='Demo App backend'
+
+      - name: 🧪 Unit Tests
+        run: |
+          mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
+
+      - name: 🧪 Integration Tests
+        run: |
+          mvn test -Dtest="CucumberIntegrationTest" -Dsurefire.failIfNoSpecifiedTests=false
+
+      - name: 🔍 Check for duplicate reports
+        id: skip_check
+        uses: fkirc/skip-duplicate-actions@v5
+        with:
+          skip_after_successful_duplicate: true
+          concurrent_skipping: "same_content_newer"
+
+      - name: 📋 Unit Test Report
+        uses: phoenix-actions/test-reporting@v8
+        if: steps.skip_check.outputs.should_skip != 'true' && (success() || failure())
+        with:
+          name: 📋 Unit Test Report
+          reporter: java-junit
+          path: "**/*CucumberUnitTest.xml"
+
+      - name: 📋 Integration Test Report
+        uses: phoenix-actions/test-reporting@v8
+        if: steps.skip_check.outputs.should_skip != 'true' && (success() || failure())
+        with:
+          name: 📋 Integration Test Report
+          reporter: java-junit
+          path: "**/*CucumberIntegrationTest.xml"

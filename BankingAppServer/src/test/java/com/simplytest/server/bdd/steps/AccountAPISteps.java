@@ -25,155 +25,143 @@ import io.cucumber.java.en.When;
 
 public class AccountAPISteps extends TestFactory
 {
-        private final ContractAPISteps contractAPISteps;
+    private final ContractAPISteps contractAPISteps;
 
-        public AccountAPISteps()
+    public AccountAPISteps()
+    {
+        super();
+        this.contractAPISteps = new ContractAPISteps();
+    }
+
+    public static AccountType getType(String type)
+    {
+        switch (type)
         {
-                super();
-
-                this.contractAPISteps = new ContractAPISteps();
+        case "Giro Konto":
+            return AccountType.GiroAccount;
+        case "Tagesgeld Konto":
+            return AccountType.OnCallAccount;
+        case "Festgeld Konto":
+            return AccountType.FixedRateAccount;
+        case "Immobilienkredit Konto":
+            return AccountType.RealEstateAccount;
         }
 
-        public static AccountType getType(String type)
-        {
-                switch (type)
-                {
-                case "Giro Konto":
-                        return AccountType.GiroAccount;
-                case "Tagesgeld Konto":
-                        return AccountType.OnCallAccount;
-                case "Festgeld Konto":
-                        return AccountType.FixedRateAccount;
-                case "Immobilienkredit Konto":
-                        return AccountType.RealEstateAccount;
-                }
+        throw new UnsupportedOperationException();
+    }
 
-                throw new UnsupportedOperationException();
+    public static Id createAccount(ContractRegistrationResult contract, String type)
+    {
+        if (type.contains("Giro"))
+        {
+            return new Id(contract.id(), 1);
         }
 
-        public static Id createAccount(ContractRegistrationResult contract,
-                        String type)
-        {
-                if (type.contains("Giro"))
-                {
-                        return new Id(contract.id(), 1);
-                }
+        var rtn = APIUtil
+                .<Pair<Id, Object>> request(
+                        String.format("contracts/accounts/%s",
+                                type.replaceAll("Konto", "").trim()
+                                        .concat("Account")),
+                        contract.JWT(), HttpMethod.POST, null,
+                        TypeToken.getParameterized(Pair.class, Id.class,
+                                Object.class));
 
-                var rtn = APIUtil.<Pair<Id, Object>> request(
-                                String.format("contracts/accounts/%s",
-                                                type.replaceAll("Konto", "").trim()
-                                                                .concat("Account")),
-                                contract.JWT(), HttpMethod.POST, null,
-                                TypeToken.getParameterized(Pair.class, Id.class,
-                                                Object.class));
+        return rtn.first();
+    }
 
-                return rtn.first();
-        }
+    @Given("Ich bin registrierter Privatkunde mit Konto von Typ {string} mit aktuellem Kontostand {int} €")
+    public void ich_bin_registrierter_privatkunde_mit_konto_von_typ_mit_aktuellem_kontostand(
+            String accountType, Integer balance)
+    {
+        contractAPISteps.ich_bin_ein_registrierter_privatkunde((double) balance);
+        world.account = createAccount(world.contract, accountType);
+    }
 
-        @Given("Ich bin registrierter Privatkunde mit Konto von Typ {string} mit aktuellem Kontostand {int} €")
-        public void ich_bin_registrierter_privatkunde_mit_konto_von_typ_mit_aktuellem_kontostand(
-                        String accountType, Integer balance)
-        {
-                contractAPISteps.ich_bin_ein_registrierter_privatkunde(
-                                (double) balance);
-                world.account = createAccount(world.contract, accountType);
-        }
+    @When("Ich den aktuellen Kontostand von {string} abfrage")
+    public void ich_den_aktuellen_kontostand_abfrage(String type)
+    {
+        world.lastResult = APIUtil.<Result<Double, Error>> request(
+                String.format("accounts/%d/balance", world.account.child()),
+                world.contract.JWT(), HttpMethod.GET, null,
+                TypeToken.getParameterized(Result.class, Double.class, Error.class));
+    }
 
-        @When("Ich den aktuellen Kontostand von {string} abfrage")
-        public void ich_den_aktuellen_kontostand_abfrage(String type)
-        {
-                world.lastResult = APIUtil.<Result<Double, Error>> request(
-                                String.format("accounts/%d/balance",
-                                                world.account.child()),
-                                world.contract.JWT(), HttpMethod.GET, null,
-                                TypeToken.getParameterized(Result.class,
-                                                Double.class, Error.class));
-        }
+    @Then("beträgt der aktuelle Kontostand von {string} {int} €")
+    public void betraegt_der_aktuelle_kontostand_von(String type, Integer amount)
+    {
+        ich_den_aktuellen_kontostand_abfrage(type);
+        Assertions.assertEquals(world.lastResult.value(), (double) amount);
+    }
 
-        @Then("beträgt der aktuelle Kontostand von {string} {int} €")
-        public void betraegt_der_aktuelle_kontostand_von(String type, Integer amount)
-        {
-                ich_den_aktuellen_kontostand_abfrage(type);
-                Assertions.assertEquals(world.lastResult.value(), (double) amount);
-        }
+    @When("Ich auf {string} {int} € von einem gültigen externen Konto empfange")
+    public void ich_auf_von_einem_gueltigen_externen_konto_empfange(String type,
+            Integer amount)
+    {
+        var account = createAccount(world.contract, type);
 
-        @When("Ich auf {string} {int} € von einem gültigen externen Konto empfange")
-        public void ich_auf_von_einem_gueltigen_externen_konto_empfange(String type,
-                        Integer amount)
-        {
-                var account = createAccount(world.contract, type);
+        world.lastResult = APIUtil.<Result<Boolean, Error>> request(
+                String.format("accounts/%d/receive?amount=%d", account.child(),
+                        amount),
+                world.contract.JWT(), HttpMethod.GET, null, TypeToken
+                        .getParameterized(Result.class, Boolean.class, Error.class));
+    }
 
-                world.lastResult = APIUtil.<Result<Boolean, Error>> request(
-                                String.format("accounts/%d/receive?amount=%d",
-                                                account.child(), amount),
-                                world.contract.JWT(), HttpMethod.GET, null,
-                                TypeToken.getParameterized(Result.class,
-                                                Boolean.class, Error.class));
-        }
+    @Then("die Transaktion war erfolgreich")
+    public void die_transaktion_war_erfolgreich()
+    {
+        Assertions.assertTrue(world.lastResult.successful());
+    }
 
-        @Then("die Transaktion war erfolgreich")
-        public void die_transaktion_war_erfolgreich()
-        {
-                Assertions.assertTrue(world.lastResult.successful());
-        }
+    @When("Ich per API von {string} {int} € auf ein gültiges internes Konto überweise")
+    public void ich_von_auf_ein_gueltiges_internes_konto_ueberweise(String type,
+            Integer amount)
+    {
+        var target = new AccountId(
+                createAccount(world.contract, "OnCall").toString());
 
-        @When("Ich per API von {string} {int} € auf ein gültiges internes Konto überweise")
-        public void ich_von_auf_ein_gueltiges_internes_konto_ueberweise(String type,
-                        Integer amount)
-        {
-                var target = new AccountId(
-                                createAccount(world.contract, "OnCall").toString());
+        world.lastResult = APIUtil.<Result<Boolean, Error>> request(
+                String.format("accounts/%d/transfer", world.account.child(), amount),
+                world.contract.JWT(), HttpMethod.POST,
+                new TransferMoney(target, amount), TypeToken
+                        .getParameterized(Result.class, Boolean.class, Error.class));
+    }
 
-                world.lastResult = APIUtil.<Result<Boolean, Error>> request(
-                                String.format("accounts/%d/transfer",
-                                                world.account.child(), amount),
-                                world.contract.JWT(), HttpMethod.POST,
-                                new TransferMoney(target, amount),
-                                TypeToken.getParameterized(Result.class,
-                                                Boolean.class, Error.class));
-        }
+    @When("Ich per API von {string} {int} € auf ein gültiges externes Konto überweise")
+    public void ich_von_auf_ein_gueltiges_externes_konto_ueberweise(String type,
+            Integer amount)
+    {
+        var iban = new Iban("AL47212110090000000235698741");
 
-        @When("Ich per API von {string} {int} € auf ein gültiges externes Konto überweise")
-        public void ich_von_auf_ein_gueltiges_externes_konto_ueberweise(String type,
-                        Integer amount)
-        {
-                var iban = new Iban("AL47212110090000000235698741");
+        world.lastResult = APIUtil.<Result<Boolean, Error>> request(
+                String.format("accounts/%d/send", world.account.child(), amount),
+                world.contract.JWT(), HttpMethod.POST, new SendMoney(iban, amount),
+                TypeToken.getParameterized(Result.class, Boolean.class,
+                        Error.class));
+    }
 
-                world.lastResult = APIUtil.<Result<Boolean, Error>> request(
-                                String.format("accounts/%d/send",
-                                                world.account.child(), amount),
-                                world.contract.JWT(), HttpMethod.POST,
-                                new SendMoney(iban, amount),
-                                TypeToken.getParameterized(Result.class,
-                                                Boolean.class, Error.class));
-        }
+    @When("Ich ein neues Immobilienkredit Konto mit Kredit von {int} € und Tilgung von {int} % erstelle")
+    public void ich_einen_neues_real_estate_account_erstelle(Integer amount,
+            Integer repaymentRate)
+    {
+        var data = APIUtil.<Pair<Id, Object>> request("contracts/accounts",
+                world.contract.JWT(), HttpMethod.POST,
+                new RealEstateAccount(repaymentRate, amount),
+                TypeToken.getParameterized(Pair.class, Id.class, Object.class));
 
-        @When("Ich ein neues Immobilienkredit Konto mit Kredit von {int} € und Tilgung von {int} % erstelle")
-        public void ich_einen_neues_real_estate_account_erstelle(Integer amount,
-                        Integer repaymentRate)
-        {
-                var data = APIUtil.<Pair<Id, Object>> request("contracts/accounts",
-                                world.contract.JWT(), HttpMethod.POST,
-                                new RealEstateAccount(repaymentRate, amount),
-                                TypeToken.getParameterized(Pair.class, Id.class,
-                                                Object.class));
+        world.account = data.first();
+    }
 
-                world.account = data.first();
-        }
+    @Then("erhalte ich ein Konto von Typ {string}")
+    public void erhalte_ich_ein_konto_von_typ(String type)
+    {
+        var data = APIUtil.<Contract> request("contracts", world.contract.JWT(),
+                HttpMethod.GET, null, TypeToken.get(Contract.class));
 
-        @Then("erhalte ich ein Konto von Typ {string}")
-        public void erhalte_ich_ein_konto_von_typ(String type)
-        {
-                var data = APIUtil.<Contract> request("contracts",
-                                world.contract.JWT(), HttpMethod.GET, null,
-                                TypeToken.get(Contract.class));
+        var account = data.getAccounts().entrySet().stream()
+                .filter(x -> x.getValue().getType() == getType(type)).findFirst();
 
-                var account = data.getAccounts().entrySet().stream()
-                                .filter(x -> x.getValue().getType() == getType(type))
-                                .findFirst();
+        Assertions.assertTrue(account.isPresent(), "Account exists");
 
-                Assertions.assertTrue(account.isPresent(), "Account exists");
-
-                world.account = account.get().getKey();
-        }
+        world.account = account.get().getKey();
+    }
 }
