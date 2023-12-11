@@ -24,6 +24,12 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
+      - name: SonarQube Scan
+        uses: kitabisa/sonarqube-action@v1.2.0
+        with:
+          host: ${{ secrets.SONARQUBE_HOST }}
+          login: ${{ secrets.SONARQUBE_TOKEN }}
+        
       - name: 🧪 Unit Tests
         run: |
           mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
