@@ -24,12 +24,13 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: SonarQube Scan
+      - name: 👀 Sonar Scan
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Demo-App-backend -Dsonar.projectName='Demo App backend'
-        
+        run: |
+          mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Demo-App-backend -Dsonar.projectName='Demo App backend'
+
       - name: 🧪 Unit Tests
         run: |
           mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
