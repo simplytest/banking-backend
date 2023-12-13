@@ -32,6 +32,11 @@ jobs:
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Demo-App-backend -Dsonar.projectName='Demo App backend'
 
+      - name: 🤖 Sonar Summary
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "### 🤖 Sonar Summary\n${{ secrets.SONARQUBE_HOST }}" >> $GITHUB_STEP_SUMMARY
+
       - name: 🧪 Unit Tests
         run: |
           mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
