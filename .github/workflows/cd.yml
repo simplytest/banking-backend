@@ -55,3 +55,16 @@ jobs:
 
             docker pull ghcr.io/simplytest/banking-backend:latest
             docker run -d -p 5005:5005 -e "SIMPLYTEST_DEMO=ON" --rm --name=Banking-Backend-Demo ghcr.io/simplytest/banking-backend:latest
+
+      - name: 🧨 Detect Breaking Changes
+        id: changes
+        uses: simbo/changes-between-tags-action@v1
+        with:
+          tag-pattern: "^[a-zA-Z()]+!:"
+
+      - name: 🧯 Forward Breaking Changes
+        if: contains(steps.changes.outputs.changes, '!')
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: cd.yml
+          repo: simplytest/banking-frontend
