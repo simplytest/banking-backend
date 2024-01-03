@@ -28,9 +28,17 @@ jobs:
         if: github.ref == 'refs/heads/master'
         env:
           SONAR_TOKEN: ${{ secrets.SONARQUBE_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONARQUBE_HOST }}
+          SONAR_HOST_URL: ${{ vars.SONARQUBE_HOST }}
         run: |
           mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Demo-App-backend -Dsonar.projectName='Demo App backend'
+
+      - name: 🤖 Sonar Summary
+        if: github.ref == 'refs/heads/master'
+        run: |
+          {
+            echo "### 🤖 Sonar Summary"
+            echo "${{ vars.SONARQUBE_HOST }}"
+          } >> $GITHUB_STEP_SUMMARY
 
       - name: 🧪 Unit Tests
         run: |
