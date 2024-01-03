@@ -65,7 +65,6 @@ public class AccountAPISteps extends TestFactory
                         contract.JWT(), HttpMethod.POST, null,
                         TypeToken.getParameterized(Pair.class, Id.class,
                                 Object.class));
-
         return rtn.first();
     }
 
@@ -137,6 +136,35 @@ public class AccountAPISteps extends TestFactory
                 world.contract.JWT(), HttpMethod.POST, new SendMoney(iban, amount),
                 TypeToken.getParameterized(Result.class, Boolean.class,
                         Error.class));
+    }
+
+    @When("Ich per API {int} € auf ein Immobilienkredit Konto mit einem Kredit von {int} € und Tilgung von {int} % übertrage")
+    public void ich_per_api_von_auf_ein_immobilienkredit_konto_mit_einem_kredit_von_und_tildung_von_uebertrage(
+            Integer transferAmount, Integer amount, Integer repaymentRate)
+    {
+
+        var target = APIUtil.<Pair<Id, Object>> request("contracts/accounts",
+                world.contract.JWT(), HttpMethod.POST,
+                new RealEstateAccount(repaymentRate, amount),
+                TypeToken.getParameterized(Pair.class, Id.class, Object.class));
+
+        try {
+        world.lastResult = APIUtil.<Result<Boolean, Error>> request(
+                String.format("accounts/%d/transfer", world.account.child(), amount),
+                world.contract.JWT(), HttpMethod.POST,
+                new TransferMoney(new AccountId(target.first().toString()), transferAmount), TypeToken
+                        .getParameterized(Result.class, Boolean.class, Error.class));
+        }
+        catch (Exception e1)
+        {
+            world.lastError = e1;
+        }
+    }
+
+    @Then("Die Transaktion wirft einen Fehler")
+    public void die_transaktion_wirft_einen_fehler()
+    {
+        Assertions.assertTrue(world.lastError.toString().contains("\"error\": \"LimitExceeded\""));
     }
 
     @When("Ich ein neues Immobilienkredit Konto mit Kredit von {int} € und Tilgung von {int} % erstelle")

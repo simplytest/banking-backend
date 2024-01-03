@@ -3,15 +3,11 @@ package com.simplytest.core.bdd.steps;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import com.simplytest.core.accounts.*;
 import org.iban4j.Iban;
 import org.junit.jupiter.api.Assertions;
 
 import com.simplytest.core.Error;
-import com.simplytest.core.accounts.AccountFixedRate;
-import com.simplytest.core.accounts.AccountGiro;
-import com.simplytest.core.accounts.AccountOnCall;
-import com.simplytest.core.accounts.AccountType;
-import com.simplytest.core.accounts.IAccount;
 import com.simplytest.core.bdd.mocks.ContractsDBMock;
 import com.simplytest.core.contracts.Contract;
 import com.simplytest.core.utils.Result;
@@ -38,6 +34,8 @@ public class AccountSteps
             return AccountType.OnCallAccount;
         case "Festgeld Konto":
             return AccountType.FixedRateAccount;
+        case "Immobilien-Finanzierungskonto":
+            return AccountType.RealEstateAccount;
         }
 
         throw new UnsupportedOperationException();
@@ -70,6 +68,12 @@ public class AccountSteps
         throw new UnsupportedOperationException(string);
     }
 
+    public IAccount getRealEstateAccount(AccountType type, double repaymentRate, double amount)
+    {
+        accounts.put(type, new AccountRealEstate(repaymentRate,amount));
+        return  accounts.get(type);
+    }
+
     public IAccount getAccount(AccountType type)
     {
         if (!accounts.containsKey(type))
@@ -93,13 +97,20 @@ public class AccountSteps
         return accounts.get(type);
     }
 
+    @Given("Als Privatkunde habe ich ein Konto von Typ {string} mit einem Kredit von {double} € und einer Tilgungsrate von {double} €")
+    public void als_privatkunde_habe_ich_ein_konto_von_typ_mit_einem_kredit_von_und_einer_tilgungsrate_von
+            (String type, double amount, double repaymentRate)
+    {
+        var account = getRealEstateAccount(getType(type), repaymentRate, amount);
+        Assertions.assertEquals(account.getBalance(),-amount);
+    }
+
     @Given("Als Privatkunde habe ich ein Konto von Typ {string} mit aktuellem Kontostand {float} €")
     public void als_privatkunde_habe_ich_ein_konto_von_typ_mit_aktuellem_kontostand_€(
             String type, float balance)
     {
         var account = getAccount(getType(type));
         account.setBalance(balance);
-
         Assertions.assertEquals(account.getBalance(), balance, delta);
     }
 
@@ -130,7 +141,14 @@ public class AccountSteps
     public void der_aktuelle_kontostand_von_beträgt_€(String type, float amount)
     {
         var account = getAccount(getType(type));
-        Assertions.assertEquals(account.getBalance(), amount, delta);
+        if(account.getBalance() < 0)
+        {
+            Assertions.assertEquals(account.getBalance(), -amount, delta);
+        }
+        else
+        {
+            Assertions.assertEquals(account.getBalance(), amount, delta);
+        }
     }
 
     @When("Ich von {string} {float} € auf das {string} transferiere")
@@ -255,6 +273,14 @@ public class AccountSteps
         Assertions.assertTrue(lastResult.successful());
     }
 
+    @Then("Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung {string}")
+    public void ich_erhalte_eine_ablehnung_für_die_sondertilgung_mit_der_meldung(String error)
+    {
+        Assertions.assertFalse(lastResult.successful());
+        Assertions.assertEquals(lastResult.error(), getError(error));
+    }
+
+
     @Then("Ich erhalte eine Ablehnung des Dispovolumens mit der Meldung {string}")
     public void ich_erhalte_eine_ablehnung_des_dispovolumens_mit_der_meldung(
             String error)
@@ -262,4 +288,5 @@ public class AccountSteps
         Assertions.assertFalse(lastResult.successful());
         Assertions.assertEquals(lastResult.error(), getError(error));
     }
+
 }

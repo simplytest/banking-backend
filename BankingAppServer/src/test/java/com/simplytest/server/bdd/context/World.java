@@ -13,4 +13,6 @@ public class World
     public ContractRegistrationResult contract;
     public CustomerData customer;
     public Id account;
+
+    public Exception lastError;
 }
