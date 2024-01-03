@@ -63,6 +63,8 @@ public class AccountSteps
             return Error.Underage;
         case "Kunde bereits registriert":
             return Error.AlreadyRegistered;
+        case "Transaktion von diesem Quellkonto nicht erlaubt":
+            return Error.BadSource;
         }
 
         throw new UnsupportedOperationException(string);
@@ -99,10 +101,10 @@ public class AccountSteps
 
     @Given("Als Privatkunde habe ich ein Konto von Typ {string} mit einem Kredit von {double} € und einer Tilgungsrate von {double} €")
     public void als_privatkunde_habe_ich_ein_konto_von_typ_mit_einem_kredit_von_und_einer_tilgungsrate_von
-            (String type, double amount, double repaymentRate)
+            (String type, double credit, double repaymentRate)
     {
-        var account = getRealEstateAccount(getType(type), repaymentRate, amount);
-        Assertions.assertEquals(account.getBalance(),-amount);
+        var account = getRealEstateAccount(getType(type), repaymentRate, credit);
+        Assertions.assertEquals(account.getBalance(),-credit);
     }
 
     @Given("Als Privatkunde habe ich ein Konto von Typ {string} mit aktuellem Kontostand {float} €")
@@ -138,34 +140,29 @@ public class AccountSteps
     }
 
     @Then("der aktuelle Kontostand von {string} beträgt {float} €")
-    public void der_aktuelle_kontostand_von_beträgt_€(String type, float amount)
+    public void der_aktuelle_kontostand_von_beträgt_€(String type, float expectedAmount)
     {
         var account = getAccount(getType(type));
         if(account.getBalance() < 0)
         {
-            Assertions.assertEquals(account.getBalance(), -amount, delta);
+            Assertions.assertEquals(account.getBalance(), -expectedAmount, delta);
         }
         else
         {
-            Assertions.assertEquals(account.getBalance(), amount, delta);
+            Assertions.assertEquals(account.getBalance(), expectedAmount, delta);
         }
     }
 
     @When("Ich von {string} {float} € auf das {string} transferiere")
-    public void ich_von_€_auf_das_transferiere(String type, float amount,
+    public void ich_von_€_auf_das_transferiere(String type, float transferAmount,
             String target)
     {
         var account = getAccount(getType(type));
         var other = getAccount(getType(target));
 
-        lastResult = account.transferMoney(amount, other);
+        lastResult = account.transferMoney(transferAmount, other);
     }
 
-    @Then("Ich erhalte ich eine Bestätigung des erfolgten Transfers")
-    public void ich_erhalte_ich_eine_bestätigung_des_erfolgten_transfers()
-    {
-        Assertions.assertTrue(lastResult.successful());
-    }
 
     @Given("verbleibender gebundener Laufzeit von {string} von {double} Jahren")
     public void verbleibender_gebundener_laufzeit_von_von_jahren(String type,
@@ -253,35 +250,17 @@ public class AccountSteps
         lastResult = contract.requestDispo(amount);
     }
 
-    @Then("Ich erhalte ich eine Ablehnung des Dispovolumens mit der Meldung {string}")
-    public void ich_erhalte_ich_eine_ablehnung_des_dispovolumens_mit_der_meldung(
-            String error)
-    {
-        Assertions.assertFalse(lastResult.successful());
-        Assertions.assertEquals(lastResult.error(), getError(error));
-    }
 
     @Then("Ich erhalte eine Bestätigung des erfolgten Transfers")
+    @Then("Ich erhalte eine Bestätigung für die Gewährung des Dispovolumens")
     public void ich_erhalte_eine_bestätigung_des_erfolgten_transfers()
     {
         Assertions.assertTrue(lastResult.successful());
     }
 
-    @Then("Ich erhalte eine Bestätigung für die Gewährung des Dispovolumens")
-    public void ich_erhalte_eine_bestätigung_für_die_gewährung_des_dispovolumens()
-    {
-        Assertions.assertTrue(lastResult.successful());
-    }
-
-    @Then("Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung {string}")
-    public void ich_erhalte_eine_ablehnung_für_die_sondertilgung_mit_der_meldung(String error)
-    {
-        Assertions.assertFalse(lastResult.successful());
-        Assertions.assertEquals(lastResult.error(), getError(error));
-    }
-
 
     @Then("Ich erhalte eine Ablehnung des Dispovolumens mit der Meldung {string}")
+    @Then("Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung {string}")
     public void ich_erhalte_eine_ablehnung_des_dispovolumens_mit_der_meldung(
             String error)
     {

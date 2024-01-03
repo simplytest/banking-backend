@@ -1,37 +1,64 @@
 Feature: Immobilien-Finanzierungskonto Sondertilgung
 
-  Scenario: Sondertilgungstransfer möglich bei einem Wert unter < 5% des Kreditvolumens
-    Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand 1000 €
-    And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von 1000 € und einer Tilgungsrate von 100 €
-    When Ich von "Giro Konto" 10 € auf das "Immobilien-Finanzierungskonto" transferiere
-    Then Ich erhalte eine Bestätigung des erfolgten Transfers
-    And der aktuelle Kontostand von "Giro Konto" beträgt 990 €
-    And der aktuelle Kontostand von "Immobilien-Finanzierungskonto" beträgt 990 €
+  Rule: Sondertilgungstransfer nur bei einem Wert unter < 5% des Kreditvolumens möglich
 
-  Scenario: Sondertilgungstransfer möglich bei einem Wert unter < 5% des Kreditvolumens, Grenzwert
-    Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand 1000 €
-    And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von 1000 € und einer Tilgungsrate von 100 €
-    When Ich von "Giro Konto" 49 € auf das "Immobilien-Finanzierungskonto" transferiere
-    Then Ich erhalte eine Bestätigung des erfolgten Transfers
-    And der aktuelle Kontostand von "Giro Konto" beträgt 951 €
-    And der aktuelle Kontostand von "Immobilien-Finanzierungskonto" beträgt 951 €
+    Scenario Outline: Erfolgreiche Sondertilgung eines Betrages unter 5% des Kreditvolumens <name>
+      Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand <balance> €
+      And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
+      When Ich von "Giro Konto" <transferAmount> € auf das "Immobilien-Finanzierungskonto" transferiere
+      Then Ich erhalte eine Bestätigung des erfolgten Transfers
+      And der aktuelle Kontostand von "Giro Konto" beträgt <expectedAmount> €
+      And der aktuelle Kontostand von "Immobilien-Finanzierungskonto" beträgt <expectedAmount> €
+      Examples:
+        | name                     | balance | credit | transferAmount | expectedAmount |
+        | Betrag deutlich unter 5% | 1000    | 1000   | 10             | 990            |
+        | Betrag knapp unter 5%    | 1000    | 1000   | 49             | 951            |
+        | Betrag exakt 5%          | 1000    | 1000   | 50             | 950            |
 
-  Scenario: Sondertilgungstransfer möglich bei einem Wert unter = 5% des Kreditvolumens
-    Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand 1000 €
-    And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von 1000 € und einer Tilgungsrate von 100 €
-    When Ich von "Giro Konto" 50 € auf das "Immobilien-Finanzierungskonto" transferiere
-    Then Ich erhalte eine Bestätigung des erfolgten Transfers
-    And der aktuelle Kontostand von "Giro Konto" beträgt 950 €
-    And der aktuelle Kontostand von "Immobilien-Finanzierungskonto" beträgt 950 €
 
-  Scenario: Sondertilgungstransfer nicht möglich bei einem Wert unter > 5% , Grenzwert
-    Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand 1000 €
-    And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von 1000 € und einer Tilgungsrate von 100 €
-    When Ich von "Giro Konto" 51 € auf das "Immobilien-Finanzierungskonto" transferiere
-    Then Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung "Überweisung wegen Limitüberschreitung nicht möglich"
+    @Negative
+    Scenario Outline: Abgelehnte Sondertilgung eines Betrages oberhalb 5% des Kreditvolumens <name>
+      Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand <balance> €
+      And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
+      When Ich von "Giro Konto" <transferAmount> € auf das "Immobilien-Finanzierungskonto" transferiere
+      Then Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung "<expectedError>"
+      And der aktuelle Kontostand von "Giro Konto" beträgt <expectedAmount> €
+      And der aktuelle Kontostand von "Immobilien-Finanzierungskonto" beträgt <expectedAmount> €
+      Examples:
+        | name                        | balance | credit | transferAmount | expectedAmount | expectedError                                       |
+        | Betrag knapp oberhalb 5%    | 1000    | 1000   | 51             | 1000           | Überweisung wegen Limitüberschreitung nicht möglich |
+        | Betrag deutlich oberhalb 5% | 1000    | 1000   | 100            | 1000           | Überweisung wegen Limitüberschreitung nicht möglich |
 
-  Scenario: Sondertilgungstransfer nicht möglich bei einem Wert unter > 5%
-    Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand 1000 €
-    And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von 1000 € und einer Tilgungsrate von 100 €
-    When Ich von "Giro Konto" 100 € auf das "Immobilien-Finanzierungskonto" transferiere
-    Then Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung "Überweisung wegen Limitüberschreitung nicht möglich"
+
+
+  Rule: Transfer nur vom einem Girokonto zulässig
+    @Negative
+    Scenario Outline: Abgelehnte Sondertilgung von einem Konto von Typ <name>
+      Given Als Privatkunde habe ich ein Konto von Typ "<sourceAccount>" mit aktuellem Kontostand <balance> €
+      And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
+      When Ich von "<sourceAccount>" <transferAmount> € auf das "Immobilien-Finanzierungskonto" transferiere
+      Then Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung "<expectedError>"
+      And der aktuelle Kontostand von "<sourceAccount>" beträgt <expectedAmount> €
+      And der aktuelle Kontostand von "Immobilien-Finanzierungskonto" beträgt <expectedAmount> €
+      Examples:
+        | name            | sourceAccount   | balance | credit | transferAmount | expectedAmount | expectedError                                   |
+        | Tagesgeld Konto | Tagesgeld Konto | 1000    | 1000   | 10             | 1000           | Transaktion von diesem Quellkonto nicht erlaubt |
+
+
+
+  Rule: Transfer nur einmal pro Kalenderjahr
+    @Negative
+    Scenario Outline: Abgelehnte Sondertilgung bei mehrfachen Transfer im gleichen Kalenderjahr
+      Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand <balance> €
+      And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
+      When Ich von "Giro Konto" <transferAmount> € auf das "Immobilien-Finanzierungskonto" transferiere
+      Then Ich erhalte eine Bestätigung des erfolgten Transfers
+      And der aktuelle Kontostand von "Giro Konto" beträgt <expectedAmount1> €
+      And der aktuelle Kontostand von "Immobilien-Finanzierungskonto" beträgt <expectedAmount1> €
+      When Ich von "Giro Konto" <transferAmount> € auf das "Immobilien-Finanzierungskonto" transferiere
+      Then Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung "<expectedError>"
+      And der aktuelle Kontostand von "Giro Konto" beträgt <expectedAmount2> €
+      And der aktuelle Kontostand von "Immobilien-Finanzierungskonto" beträgt <expectedAmount2> €
+      Examples:
+        | balance | credit | transferAmount | expectedAmount1 | expectedAmount2 | expectedError                                       |
+        | 1000    | 1000   | 10             | 990             | 990             | Überweisung wegen Limitüberschreitung nicht möglich |

@@ -97,9 +97,28 @@ public class AccountRealEstate extends Account
         return Result.error(Error.NotSupported);
     }
 
+
+    public Result<Error> calculateMonthlyRate()
+    {
+        monthlyAmount = (creditAmount * (repaymentRate + interestRate)) / 12;
+        return Result.success();
+    }
+
+
     @Override
     public Result<Error> receiveMoney(double amount)
     {
+        try (var guard = new Guard(readLock()))
+        {
+            maxSpecialRepayment -= amount;
+        }
+
+        return super.receiveMoney(amount);
+    }
+
+    @Override
+    public Result<Error> canTransfer(IAccount sourceAccount, double amount) {
+
         try (var guard = new Guard(readLock()))
         {
             if (getBalance() + amount > 0)
@@ -107,20 +126,27 @@ public class AccountRealEstate extends Account
                 return Result.error(Error.BadAmount);
             }
 
+            // special repayment above allowed limit ?
             if (amount > maxSpecialRepayment)
             {
                 return Result.error(Error.LimitExceeded);
             }
 
-            maxSpecialRepayment -= amount;
+            // special repayment only from giro account
+            if (!(sourceAccount instanceof AccountGiro))
+            {
+                return Result.error(Error.BadSource);
+            }
+
+            // special repayment already used in this calendar year ?
+            if (maxSpecialRepayment < creditAmount * 0.05)
+            {
+                return Result.error(Error.LimitExceeded);
+            }
+
         }
 
-        return super.receiveMoney(amount);
-    }
-
-    public Result<Error> calculateMonthlyRate()
-    {
-        monthlyAmount = (creditAmount * (repaymentRate + interestRate)) / 12;
         return Result.success();
+
     }
 }

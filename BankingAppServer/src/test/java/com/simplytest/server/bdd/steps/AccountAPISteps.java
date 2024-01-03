@@ -43,12 +43,13 @@ public class AccountAPISteps extends TestFactory
             return AccountType.OnCallAccount;
         case "Festgeld Konto":
             return AccountType.FixedRateAccount;
-        case "Immobilienkredit Konto":
+        case "Immobilien-Finanzierungskonto":
             return AccountType.RealEstateAccount;
         }
 
         throw new UnsupportedOperationException();
     }
+
 
     public static Id createAccount(ContractRegistrationResult contract, String type)
     {
@@ -79,8 +80,16 @@ public class AccountAPISteps extends TestFactory
     @When("Ich den aktuellen Kontostand von {string} abfrage")
     public void ich_den_aktuellen_kontostand_abfrage(String type)
     {
+        var data = APIUtil.<Contract> request("contracts", world.contract.JWT(),
+                HttpMethod.GET, null, TypeToken.get(Contract.class));
+
+        var account = data.getAccounts().entrySet().stream()
+                .filter(x -> x.getValue().getType() == getType(type)).findFirst();
+
+        Assertions.assertTrue(account.isPresent(), "Account exists");
+
         world.lastResult = APIUtil.<Result<Double, Error>> request(
-                String.format("accounts/%d/balance", world.account.child()),
+                String.format("accounts/%d/balance", account.get().getKey().child()),
                 world.contract.JWT(), HttpMethod.GET, null,
                 TypeToken.getParameterized(Result.class, Double.class, Error.class));
     }
@@ -89,7 +98,7 @@ public class AccountAPISteps extends TestFactory
     public void betraegt_der_aktuelle_kontostand_von(String type, Integer amount)
     {
         ich_den_aktuellen_kontostand_abfrage(type);
-        Assertions.assertEquals(world.lastResult.value(), (double) amount);
+        Assertions.assertEquals((double) amount, world.lastResult.value());
     }
 
     @When("Ich auf {string} {int} € von einem gültigen externen Konto empfange")
@@ -138,36 +147,43 @@ public class AccountAPISteps extends TestFactory
                         Error.class));
     }
 
-    @When("Ich per API {int} € auf ein Immobilienkredit Konto mit einem Kredit von {int} € und Tilgung von {int} % übertrage")
-    public void ich_per_api_von_auf_ein_immobilienkredit_konto_mit_einem_kredit_von_und_tildung_von_uebertrage(
-            Integer transferAmount, Integer amount, Integer repaymentRate)
-    {
 
-        var target = APIUtil.<Pair<Id, Object>> request("contracts/accounts",
-                world.contract.JWT(), HttpMethod.POST,
-                new RealEstateAccount(repaymentRate, amount),
-                TypeToken.getParameterized(Pair.class, Id.class, Object.class));
+    @When("Ich per API von {string} {int} € auf ein {string} übertrage")
+    public void ichPerAPIVonTransferAmount€AufEinÜbertrage(String sourceAccountType, Integer transferAmount, String targetAccountType) {
+
+        var contract = APIUtil.<Contract> request("contracts", world.contract.JWT(),
+                HttpMethod.GET, null, TypeToken.get(Contract.class));
+
+        var sourceAccount = contract.getAccounts().entrySet().stream()
+                .filter(x -> x.getValue().getType() == getType(sourceAccountType)).findFirst();
+        Assertions.assertTrue(sourceAccount.isPresent(), "Account exists");
+
+        var targetAccount = contract.getAccounts().entrySet().stream()
+                .filter(x -> x.getValue().getType() == getType(targetAccountType)).findFirst();
+        Assertions.assertTrue(targetAccount.isPresent(), "Account exists");
 
         try {
-        world.lastResult = APIUtil.<Result<Boolean, Error>> request(
-                String.format("accounts/%d/transfer", world.account.child(), amount),
-                world.contract.JWT(), HttpMethod.POST,
-                new TransferMoney(new AccountId(target.first().toString()), transferAmount), TypeToken
-                        .getParameterized(Result.class, Boolean.class, Error.class));
+            world.lastResult = APIUtil.<Result<Boolean, Error>> request(
+                    String.format("accounts/%d/transfer", sourceAccount.get().getKey().child()),
+                    world.contract.JWT(), HttpMethod.POST,
+                    new TransferMoney(new AccountId(targetAccount.get().getKey().toString()), transferAmount), TypeToken
+                            .getParameterized(Result.class, Boolean.class, Error.class));
         }
         catch (Exception e1)
         {
             world.lastError = e1;
         }
+
     }
 
-    @Then("Die Transaktion wirft einen Fehler")
-    public void die_transaktion_wirft_einen_fehler()
+
+    @Then("Die Transaktion wirft einen Fehler {string}")
+    public void die_transaktion_wirft_einen_fehler(String error)
     {
-        Assertions.assertTrue(world.lastError.toString().contains("\"error\": \"LimitExceeded\""));
+        Assertions.assertTrue(world.lastError.toString().contains("\"error\": \"" + error + "\""));
     }
 
-    @When("Ich ein neues Immobilienkredit Konto mit Kredit von {int} € und Tilgung von {int} % erstelle")
+    @When("Ich ein neues Immobilien-Finanzierungskonto mit Kredit von {int} € und Tilgung von {int} % erstelle")
     public void ich_einen_neues_real_estate_account_erstelle(Integer amount,
             Integer repaymentRate)
     {
@@ -192,4 +208,5 @@ public class AccountAPISteps extends TestFactory
 
         world.account = account.get().getKey();
     }
+
 }
