@@ -98,6 +98,12 @@ public abstract class Account implements IAccount
                 return Result.error(Error.BadBalance);
             }
 
+            var canTransfer  = target.canTransfer(this, amount);
+            if (!canTransfer.successful())
+            {
+                return Result.error(canTransfer.error());
+            }
+
             var transfer = target.receiveMoney(amount);
 
             if (!transfer.successful())
@@ -108,6 +114,11 @@ public abstract class Account implements IAccount
             balance -= amount;
         }
 
+        return Result.success();
+    }
+
+    @Override
+    public Result<Error> canTransfer(IAccount sourceAccount, double amount) {
         return Result.success();
     }
 

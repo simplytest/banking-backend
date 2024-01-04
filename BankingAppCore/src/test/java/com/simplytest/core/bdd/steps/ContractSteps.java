@@ -194,6 +194,6 @@ public class ContractSteps
     public void ich_erhalte_eine_ablehnung_des_vertragsabschlusses_mit_der_meldung(
             String error)
     {
-        Assertions.assertEquals(lastError, AccountSteps.getError(error));
+        Assertions.assertEquals(lastError, Error.getError(error));
     }
 }

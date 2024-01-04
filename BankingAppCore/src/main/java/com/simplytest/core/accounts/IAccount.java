@@ -28,4 +28,6 @@ public interface IAccount
     public Result<Error> sendMoney(double amount, Iban target);
 
     public Result<Error> transferMoney(double amount, IAccount account);
+
+    public Result<Error> canTransfer(IAccount sourceAccount, double amount);
 }

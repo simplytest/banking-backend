@@ -20,6 +20,9 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
+import static com.simplytest.core.Error.getError;
+import static com.simplytest.core.accounts.AccountType.getType;
+
 public class AccountSteps
 {
     private HashMap<AccountType, IAccount> accounts = new HashMap<AccountType, IAccount>();
@@ -27,48 +30,6 @@ public class AccountSteps
     private Contract contract;
 
     private static final float delta = 0.0000001f;
-
-    public static AccountType getType(String type)
-    {
-        switch (type)
-        {
-        case "Giro Konto":
-            return AccountType.GiroAccount;
-        case "Tagesgeld Konto":
-            return AccountType.OnCallAccount;
-        case "Festgeld Konto":
-            return AccountType.FixedRateAccount;
-        }
-
-        throw new UnsupportedOperationException();
-    }
-
-    public static Error getError(String string)
-    {
-        switch (string)
-        {
-        case "":
-            return Error.Unknown;
-        case "Überweisung wegen Limitüberschreitung nicht möglich":
-            return Error.LimitExceeded;
-        case "Transfer wegen Unterdeckung nicht möglich":
-        case "Überweisung wegen Unterdeckung nicht möglich":
-            return Error.BadBalance;
-        case "Transfer während der gebundener Laufzeit nicht möglich":
-            return Error.DisallowedDuringBound;
-        case "Unzureichende Kreditwürdigkeit":
-            return Error.BadCredability;
-        case "Dispovolumen für Kunden aus Ausland nicht unterstützt":
-        case "Vertragsabschlusses für Kunden mit Wohnsitz aussesrhalb EU nicht möglich":
-            return Error.BadCountry;
-        case "Vertragsabschlusses für minderjährige Personen nicht möglich":
-            return Error.Underage;
-        case "Kunde bereits registriert":
-            return Error.AlreadyRegistered;
-        }
-
-        throw new UnsupportedOperationException(string);
-    }
 
     public IAccount getAccount(AccountType type)
     {
