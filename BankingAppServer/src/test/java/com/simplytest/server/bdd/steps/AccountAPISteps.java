@@ -23,6 +23,8 @@ import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 
+import static com.simplytest.core.accounts.AccountType.getType;
+
 public class AccountAPISteps extends TestFactory
 {
     private final ContractAPISteps contractAPISteps;
@@ -32,24 +34,6 @@ public class AccountAPISteps extends TestFactory
         super();
         this.contractAPISteps = new ContractAPISteps();
     }
-
-    public static AccountType getType(String type)
-    {
-        switch (type)
-        {
-        case "Giro Konto":
-            return AccountType.GiroAccount;
-        case "Tagesgeld Konto":
-            return AccountType.OnCallAccount;
-        case "Festgeld Konto":
-            return AccountType.FixedRateAccount;
-        case "Immobilien-Finanzierungskonto":
-            return AccountType.RealEstateAccount;
-        }
-
-        throw new UnsupportedOperationException();
-    }
-
 
     public static Id createAccount(ContractRegistrationResult contract, String type)
     {
