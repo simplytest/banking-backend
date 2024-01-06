@@ -2,6 +2,7 @@ package com.simplytest.server;
 
 import java.util.Calendar;
 
+import com.simplytest.server.apiData.RealEstateAccount;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -66,6 +67,11 @@ public class BankingServer
         controller.addAccount(result.value().JWT(), AccountType.FixedRateAccount);
 
         controller.registerContract(createDemoUser("Amanda", "123"), 0.0, response);
+
+        var max = createDemoUser("Max", "demo");
+        var contractMax = controller.registerContract(max, 0.0, response);
+        controller.addAccount(contractMax.value().JWT(), AccountType.OnCallAccount);
+        controller.addRealEstateAccount(contractMax.value().JWT(), new RealEstateAccount(5, 1000));
     }
 
     public static void main(String[] args)

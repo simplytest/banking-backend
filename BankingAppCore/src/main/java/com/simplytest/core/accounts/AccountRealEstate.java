@@ -23,16 +23,16 @@ public class AccountRealEstate extends Account
         super();
     }
 
-    public AccountRealEstate(double repaymentRate, double amount)
+    public AccountRealEstate(double repaymentRate, double creditAmount)
     {
         super();
 
         this.repaymentRate = repaymentRate;
-        this.creditAmount = amount;
+        this.creditAmount = creditAmount;
 
-        this.maxSpecialRepayment = creditAmount * 0.05;
+        this.maxSpecialRepayment = this.creditAmount * 0.05;
 
-        setBalance(-amount);
+        setBalance(-creditAmount);
     }
 
     public double getMonthlyAmount()
