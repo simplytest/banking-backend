@@ -125,9 +125,9 @@ public class Contract
     }
 
     public Pair<Id, IAccount> openRealEstateAccount(double repaymentRate,
-            double amount)
+            double creditAmount)
     {
-        var rtn = new AccountRealEstate(repaymentRate, amount);
+        var rtn = new AccountRealEstate(repaymentRate, creditAmount);
         rtn.calculateMonthlyRate();
 
         var id = this.id.create();
