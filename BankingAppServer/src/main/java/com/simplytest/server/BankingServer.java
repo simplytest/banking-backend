@@ -69,8 +69,8 @@ public class BankingServer
         controller.registerContract(createDemoUser("Amanda", "123"), 0.0, response);
 
         var max = createDemoUser("Max", "demo");
-        var contractMax = controller.registerContract(max, 0.0, response);
-        controller.addAccount(contractMax.value().JWT(), AccountType.OnCallAccount);
+        var contractMax = controller.registerContract(max, 1000.0, response);
+        controller.addAccount(contractMax.value().JWT(), AccountType.OnCallAccount).second().receiveMoney(500);
         controller.addRealEstateAccount(contractMax.value().JWT(), new RealEstateAccount(5, 1000));
     }
 
