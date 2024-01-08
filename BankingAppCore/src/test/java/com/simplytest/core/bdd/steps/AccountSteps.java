@@ -208,6 +208,7 @@ public class AccountSteps
     }
 
 
+    @Then("Ich erhalte eine Bestätigung")
     @Then("Ich erhalte eine Bestätigung des erfolgten Transfers")
     @Then("Ich erhalte eine Bestätigung für die Gewährung des Dispovolumens")
     public void ich_erhalte_eine_bestätigung_des_erfolgten_transfers()
@@ -223,6 +224,16 @@ public class AccountSteps
     {
         Assertions.assertFalse(lastResult.successful());
         Assertions.assertEquals(lastResult.error(), getError(error));
+    }
+
+
+    @When("Ich die Transfermöglichkeit {float} €  von {string} auf das {string} prüfe")
+    public void ich_von_transfer_pruefe(float transferAmount, String source, String target)
+    {
+        var account = getAccount(getType(source));
+        var other = getAccount(getType(target));
+
+        lastResult = other.canTransfer(account, transferAmount);
     }
 
 }

@@ -2,6 +2,34 @@ Feature: Immobilien-Finanzierungskonto Sondertilgung
 
   Rule: Sondertilgungstransfer nur bei einem Wert unter < 5% des Kreditvolumens möglich
 
+    @UnitTest
+    Scenario Outline: Erfolgreiche Prüfung der Möglichkeit der Sondertilgung eines Betrages unter 5% des Kreditvolumens <name>
+      Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand <balance> €
+      And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
+      When Ich die Transfermöglichkeit <transferAmount> €  von "Giro Konto" auf das "Immobilien-Finanzierungskonto" prüfe
+      Then Ich erhalte eine Bestätigung
+
+      Examples:
+        | name                     | balance | credit | transferAmount |
+        | Betrag deutlich unter 5% | 1000    | 1000   | 10             |
+        | Betrag knapp unter 5%    | 1000    | 1000   | 49             |
+        | Betrag exakt 5%          | 1000    | 1000   | 50             |
+
+    @UnitTest @Negative
+    Scenario Outline: Abgelehnte Prüfung der Möglichkeit der Sondertilgung eines Betrages oberhalb 5% des Kreditvolumens <name>
+      Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand <balance> €
+      And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
+      When Ich die Transfermöglichkeit <transferAmount> €  von "Giro Konto" auf das "Immobilien-Finanzierungskonto" prüfe
+      Then Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung "<expectedError>"
+      Examples:
+        | name                        | balance | credit | transferAmount | expectedError                                       |
+        | Betrag knapp oberhalb 5%    | 1000    | 1000   | 51             | Überweisung wegen Limitüberschreitung nicht möglich |
+        | Betrag deutlich oberhalb 5% | 1000    | 1000   | 100            | Überweisung wegen Limitüberschreitung nicht möglich |
+
+
+
+
+    @IntegrationTest
     Scenario Outline: Erfolgreiche Sondertilgung eines Betrages unter 5% des Kreditvolumens <name>
       Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand <balance> €
       And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
@@ -16,7 +44,7 @@ Feature: Immobilien-Finanzierungskonto Sondertilgung
         | Betrag exakt 5%          | 1000    | 1000   | 50             | 950            |
 
 
-    @Negative
+    @IntegrationTest @Negative
     Scenario Outline: Abgelehnte Sondertilgung eines Betrages oberhalb 5% des Kreditvolumens <name>
       Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand <balance> €
       And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
@@ -32,7 +60,19 @@ Feature: Immobilien-Finanzierungskonto Sondertilgung
 
 
   Rule: Transfer nur vom einem Girokonto zulässig
-    @Negative
+
+    @UnitTest  @Negative
+    Scenario Outline: Abgelehnte Prüfung der Möglichkeit der Sondertilgung on einem Konto von Typ <name>
+      Given Als Privatkunde habe ich ein Konto von Typ "<sourceAccount>" mit aktuellem Kontostand <balance> €
+      And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
+      When Ich die Transfermöglichkeit <transferAmount> €  von "<sourceAccount>" auf das "Immobilien-Finanzierungskonto" prüfe
+      Then Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung "<expectedError>"
+
+      Examples:
+        | name            | sourceAccount   | balance | credit | transferAmount | expectedError                                   |
+        | Tagesgeld Konto | Tagesgeld Konto | 1000    | 1000   | 10             | Transaktion von diesem Quellkonto nicht erlaubt |
+
+    @IntegrationTest @Negative
     Scenario Outline: Abgelehnte Sondertilgung von einem Konto von Typ <name>
       Given Als Privatkunde habe ich ein Konto von Typ "<sourceAccount>" mit aktuellem Kontostand <balance> €
       And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
@@ -47,7 +87,7 @@ Feature: Immobilien-Finanzierungskonto Sondertilgung
 
 
   Rule: Transfer nur einmal pro Kalenderjahr
-    @Negative
+    @IntegrationTest @Negative
     Scenario Outline: Abgelehnte Sondertilgung bei mehrfachen Transfer im gleichen Kalenderjahr
       Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand <balance> €
       And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
