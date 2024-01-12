@@ -44,6 +44,8 @@ public enum Error
                 return Error.AlreadyRegistered;
             case "Transaktion von diesem Quellkonto nicht erlaubt":
                 return Error.BadSource;
+            case "Betrag nicht zulässig":
+                return Error.BadAmount;
         }
 
         throw new UnsupportedOperationException(string);

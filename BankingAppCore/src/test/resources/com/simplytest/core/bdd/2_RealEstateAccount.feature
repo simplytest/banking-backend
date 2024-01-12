@@ -60,7 +60,6 @@ Feature: Immobilien-Finanzierungskonto Sondertilgung
 
 
   Rule: Transfer nur vom einem Girokonto zulässig
-
     @UnitTest  @Negative
     Scenario Outline: Abgelehnte Prüfung der Möglichkeit der Sondertilgung on einem Konto von Typ <name>
       Given Als Privatkunde habe ich ein Konto von Typ "<sourceAccount>" mit aktuellem Kontostand <balance> €
@@ -102,3 +101,16 @@ Feature: Immobilien-Finanzierungskonto Sondertilgung
       Examples:
         | balance | credit | transferAmount | expectedAmount1 | expectedAmount2 | expectedError                                       |
         | 1000    | 1000   | 10             | 990             | 990             | Überweisung wegen Limitüberschreitung nicht möglich |
+
+
+
+  Rule: Sondertilgung darf Kreditschuld nicht übersteigen
+    @UnitTest @Negative
+    Scenario Outline: Abgelehnte Prüfung der Möglichkeit der Sondertilgung wegen Übererfüllung des Kredits <name>
+      Given Als Privatkunde habe ich ein Konto von Typ "Giro Konto" mit aktuellem Kontostand <balance> €
+      And Als Privatkunde habe ich ein Konto von Typ "Immobilien-Finanzierungskonto" mit einem Kredit von <credit> € und einer Tilgungsrate von 100 €
+      When Ich die Transfermöglichkeit <transferAmount> €  von "Giro Konto" auf das "Immobilien-Finanzierungskonto" prüfe
+      Then Ich erhalte eine Ablehnung für die Sondertilgung mit der Meldung "<expectedError>"
+      Examples:
+        | name                     | balance | credit | transferAmount | expectedError         |
+        | Betrag knapp oberhalb 5% | 1000    | 40     | 45             | Betrag nicht zulässig |
