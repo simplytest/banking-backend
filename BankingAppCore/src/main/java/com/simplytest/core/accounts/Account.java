@@ -76,9 +76,9 @@ public abstract class Account implements IAccount
             return false;
         }
 
-        String afterDecimal = amount.toString().split(".")[1];
+        String[] split = amount.toString().split("[^0-9]");
 
-        if (afterDecimal != null && afterDecimal.length() > 2)
+        if (split.length >= 2 && split[1].length() > 2)
         {
             return false;
         }
