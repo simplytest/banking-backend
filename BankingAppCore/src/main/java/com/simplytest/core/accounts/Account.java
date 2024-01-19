@@ -69,9 +69,26 @@ public abstract class Account implements IAccount
         this.interestRate = interestRate;
     }
 
-    public Result<Error> receiveMoney(double amount)
+    protected boolean amountSane(Double amount)
     {
         if (amount <= 0)
+        {
+            return false;
+        }
+
+        String afterDecimal = amount.toString().split(".")[1];
+
+        if (afterDecimal != null && afterDecimal.length() > 2)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    public Result<Error> receiveMoney(double amount)
+    {
+        if (!amountSane(amount))
         {
             return Result.error(Error.BadAmount);
         }
@@ -91,17 +108,16 @@ public abstract class Account implements IAccount
             return Result.error(Error.DisallowedDuringBound);
         }
 
+        if (!amountSane(amount))
+        {
+            return Result.error(Error.BadAmount);
+        }
+
         try (var guard = new Guard(writeLock))
         {
             if (amount > balance)
             {
                 return Result.error(Error.BadBalance);
-            }
-
-            var canTransfer  = target.canTransfer(this, amount);
-            if (!canTransfer.successful())
-            {
-                return Result.error(canTransfer.error());
             }
 
             var transfer = target.receiveMoney(amount);
@@ -114,11 +130,6 @@ public abstract class Account implements IAccount
             balance -= amount;
         }
 
-        return Result.success();
-    }
-
-    @Override
-    public Result<Error> canTransfer(IAccount sourceAccount, double amount) {
         return Result.success();
     }
 

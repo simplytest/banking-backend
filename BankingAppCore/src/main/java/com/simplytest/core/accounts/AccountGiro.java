@@ -57,6 +57,11 @@ public class AccountGiro extends Account
     @Override
     public Result<Error> sendMoney(double amount, Iban target)
     {
+        if (!amountSane(amount))
+        {
+            return Result.error(Error.BadAmount);
+        }
+
         if (amount > getBalance() + dispoLimit)
         {
             return Result.error(Error.BadBalance);
