@@ -83,10 +83,17 @@ public class AccountController
     @GetMapping(path = "{accountId}/balance")
     public Result<Double, Error> getCurrentBalance(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
-            @PathVariable @Valid long accountId)
+            @PathVariable @Valid long accountId, HttpServletResponse response)
     {
+        var parsedToken = JWT.getId(token);
 
-        var id = new Id(JWT.getId(token), accountId);
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.BadCredentials);
+        }
+
+        var id = new Id(parsedToken.get(), accountId);
         var account = getAccount(id).value();
 
         return Result.success(account.getBalance());
@@ -99,7 +106,15 @@ public class AccountController
             @PathVariable @Valid long accountId, @RequestParam double amount,
             HttpServletResponse response)
     {
-        var id = new Id(JWT.getId(token), accountId);
+        var parsedToken = JWT.getId(token);
+
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.BadCredentials);
+        }
+
+        var id = new Id(parsedToken.get(), accountId);
 
         try (var updatable = getAccount(id))
         {
@@ -123,7 +138,15 @@ public class AccountController
             @PathVariable @Valid long accountId, @RequestBody SendMoney data,
             HttpServletResponse response)
     {
-        var id = new Id(JWT.getId(token), accountId);
+        var parsedToken = JWT.getId(token);
+
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.BadCredentials);
+        }
+
+        var id = new Id(parsedToken.get(), accountId);
 
         try
         {
@@ -156,7 +179,15 @@ public class AccountController
             @PathVariable @Valid long accountId,
             @RequestBody @Valid TransferMoney data, HttpServletResponse response)
     {
-        var id = new Id(JWT.getId(token), accountId);
+        var parsedToken = JWT.getId(token);
+
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.BadCredentials);
+        }
+
+        var id = new Id(parsedToken.get(), accountId);
 
         if (id.parent() != data.target().value().parent())
         {

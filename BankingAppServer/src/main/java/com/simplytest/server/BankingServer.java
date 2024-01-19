@@ -64,14 +64,19 @@ public class BankingServer
 
         var john = createDemoUser("John", "123");
         var result = controller.registerContract(john, 0.0, response);
-        controller.addAccount(result.value().JWT(), AccountType.FixedRateAccount);
+        controller.addAccount(result.value().JWT(), AccountType.FixedRateAccount,
+                response);
 
         controller.registerContract(createDemoUser("Amanda", "123"), 0.0, response);
 
         var max = createDemoUser("Max", "demo");
         var contractMax = controller.registerContract(max, 1000.0, response);
-        controller.addAccount(contractMax.value().JWT(), AccountType.OnCallAccount).second().receiveMoney(500);
-        controller.addRealEstateAccount(contractMax.value().JWT(), new RealEstateAccount(5, 1000));
+
+        controller.addAccount(contractMax.value().JWT(), AccountType.OnCallAccount,
+                response).second().receiveMoney(500);
+
+        controller.addRealEstateAccount(contractMax.value().JWT(),
+                new RealEstateAccount(5, 1000), response);
     }
 
     public static void main(String[] args)

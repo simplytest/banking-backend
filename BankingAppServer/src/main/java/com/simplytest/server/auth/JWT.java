@@ -1,6 +1,7 @@
 package com.simplytest.server.auth;
 
 import java.util.Date;
+import java.util.Optional;
 
 import javax.crypto.SecretKey;
 
@@ -26,9 +27,15 @@ public class JWT
                 .signWith(key).compact();
     }
 
-    public static long getId(String token)
+    public static Optional<Long> getId(String token)
     {
-        return Long.parseLong(Jwts.parser().verifyWith(key).build()
-                .parseSignedClaims(token).getPayload().getSubject());
+        try
+        {
+            return Optional.of(Long.parseLong(Jwts.parser().verifyWith(key).build()
+                    .parseSignedClaims(token).getPayload().getSubject()));
+        } catch (Exception ex)
+        {
+            return Optional.empty();
+        }
     }
 }

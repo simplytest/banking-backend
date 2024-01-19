@@ -136,10 +136,18 @@ public class ContractController
     @ResponseBody
     @GetMapping()
     public Contract getContract(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token)
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
+            HttpServletResponse response)
     {
-        var id = JWT.getId(token);
-        return findContract(id).value();
+        var parsedToken = JWT.getId(token);
+
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return null;
+        }
+
+        return findContract(parsedToken.get()).value();
     }
 
     @ResponseBody
@@ -148,9 +156,15 @@ public class ContractController
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
             HttpServletResponse response)
     {
-        var id = JWT.getId(token);
+        var parsedToken = JWT.getId(token);
 
-        var contract = findContract(id).value();
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.BadCredentials);
+        }
+
+        var contract = findContract(parsedToken.get()).value();
 
         if (System.getenv("SIMPLYTEST_DEMO") != null
                 && contract.getCustomer().getFirstName().equals("Demo"))
@@ -167,7 +181,8 @@ public class ContractController
             return Result.error(result.error());
         }
 
-        repository.deleteById(id);
+        repository.deleteById(parsedToken.get());
+
         return Result.success();
     }
 
@@ -178,9 +193,15 @@ public class ContractController
             @PathVariable(required = true) Double amount,
             HttpServletResponse response)
     {
-        var id = JWT.getId(token);
+        var parsedToken = JWT.getId(token);
 
-        try (var contract = findContract(id))
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.BadCredentials);
+        }
+
+        try (var contract = findContract(parsedToken.get()))
         {
             var result = contract.value().requestDispo(amount);
 
@@ -201,9 +222,15 @@ public class ContractController
             @PathVariable(required = true) Double amount,
             HttpServletResponse response)
     {
-        var id = JWT.getId(token);
+        var parsedToken = JWT.getId(token);
 
-        try (var contract = findContract(id))
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.BadCredentials);
+        }
+
+        try (var contract = findContract(parsedToken.get()))
         {
             var result = contract.value().setSendLimit(amount);
 
@@ -220,11 +247,18 @@ public class ContractController
     @ResponseBody
     @GetMapping(path = "accounts")
     public Map<Id, IAccount> getContractAccounts(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token)
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
+            HttpServletResponse response)
     {
-        var id = JWT.getId(token);
+        var parsedToken = JWT.getId(token);
 
-        var contract = findContract(id).value();
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return null;
+        }
+
+        var contract = findContract(parsedToken.get()).value();
         return contract.getAccounts();
     }
 
@@ -233,11 +267,17 @@ public class ContractController
     @PostMapping(path = "accounts/{type}")
     public Pair<Id, IAccount> addAccount(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
-            @PathVariable AccountType type)
+            @PathVariable AccountType type, HttpServletResponse response)
     {
-        var id = JWT.getId(token);
+        var parsedToken = JWT.getId(token);
 
-        try (var contract = findContract(id))
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return null;
+        }
+
+        try (var contract = findContract(parsedToken.get()))
         {
             return contract.value().openAccount(type);
         }
@@ -247,11 +287,17 @@ public class ContractController
     @PostMapping(path = "accounts")
     public Pair<Id, IAccount> addRealEstateAccount(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
-            @RequestBody @Valid RealEstateAccount data)
+            @RequestBody @Valid RealEstateAccount data, HttpServletResponse response)
     {
-        var id = JWT.getId(token);
+        var parsedToken = JWT.getId(token);
 
-        try (var contract = findContract(id))
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return null;
+        }
+
+        try (var contract = findContract(parsedToken.get()))
         {
             return contract.value().openRealEstateAccount(data.repaymentRate(),
                     data.amount());
@@ -264,30 +310,44 @@ public class ContractController
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
             @PathVariable @Valid long accountId, HttpServletResponse response)
     {
-        var id = JWT.getId(token);
+        var parsedToken = JWT.getId(token);
 
-        try (var contract = findContract(id))
+        if (parsedToken.isEmpty())
         {
-            var result = contract.value().closeAccount(new Id(id, accountId));
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.BadCredentials);
+        }
+
+        try (var contract = findContract(parsedToken.get()))
+        {
+            var result = contract.value()
+                    .closeAccount(new Id(parsedToken.get(), accountId));
 
             if (!result.successful())
             {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 return Result.error(result.error());
             }
-
-            return Result.success();
         }
+
+        return Result.success();
     }
 
     @GetMapping(path = "customer")
     @ResponseBody
     public Customer getContractCustomer(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token)
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
+            HttpServletResponse response)
     {
-        var id = JWT.getId(token);
+        var parsedToken = JWT.getId(token);
 
-        var contract = findContract(id).value();
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return null;
+        }
+
+        var contract = findContract(parsedToken.get()).value();
         return contract.getCustomer();
     }
 }

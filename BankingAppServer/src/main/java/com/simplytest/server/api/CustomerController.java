@@ -19,6 +19,8 @@ import com.simplytest.server.model.DBContract;
 import com.simplytest.server.repo.ContractRepository;
 import com.simplytest.server.utils.Updatable;
 
+import jakarta.servlet.http.HttpServletResponse;
+
 @Validated
 @RestController
 @RequestMapping(path = "api/customers")
@@ -45,20 +47,34 @@ public class CustomerController
 
     @GetMapping()
     public Customer getCustomer(
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token)
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
+            HttpServletResponse response)
     {
-        var id = JWT.getId(token);
-        return findCustomer(id).value();
+        var parsedToken = JWT.getId(token);
+
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return null;
+        }
+
+        return findCustomer(parsedToken.get()).value();
     }
 
     @PutMapping(path = "changeAddress")
     public void changeCustomerAddress(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
-            @RequestBody Address newAddress)
+            @RequestBody Address newAddress, HttpServletResponse response)
     {
-        var id = JWT.getId(token);
+        var parsedToken = JWT.getId(token);
 
-        try (var customer = findCustomer(id))
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return;
+        }
+
+        try (var customer = findCustomer(parsedToken.get()))
         {
             customer.value().changeAddress(newAddress);
         }
