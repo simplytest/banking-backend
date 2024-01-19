@@ -4,18 +4,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import com.simplytest.core.accounts.AccountType;
 import com.simplytest.core.Error;
 import com.simplytest.core.Id;
 import com.simplytest.core.accounts.AccountFixedRate;
 import com.simplytest.core.accounts.AccountGiro;
 import com.simplytest.core.accounts.AccountOnCall;
 import com.simplytest.core.accounts.AccountRealEstate;
+import com.simplytest.core.accounts.AccountType;
 import com.simplytest.core.accounts.IAccount;
 import com.simplytest.core.customers.Customer;
 import com.simplytest.core.customers.CustomerPrivate;
 import com.simplytest.core.utils.Expected;
+import com.simplytest.core.utils.Guard;
 import com.simplytest.core.utils.Pair;
 import com.simplytest.core.utils.Result;
 
@@ -28,8 +32,22 @@ public class Contract
     private volatile String passwordHash;
     private HashMap<Id, IAccount> accounts = new HashMap<>();
 
+    private transient Lock readLock;
+    private transient Lock writeLock;
+    private transient ReadWriteLock mutex;
+
+    private Contract()
+    {
+        this.mutex = new ReentrantReadWriteLock();
+
+        this.readLock = mutex.readLock();
+        this.writeLock = mutex.writeLock();
+    }
+
     private Contract(Id id, Customer customer, String passwordHash)
     {
+        this();
+
         this.id = id;
         this.customer = customer;
         this.passwordHash = hash(passwordHash);
@@ -47,12 +65,20 @@ public class Contract
 
     public HashMap<Id, IAccount> getAccounts()
     {
-        return accounts;
+        try (var guard = new Guard(readLock))
+        {
+            return (HashMap<Id, IAccount>) accounts.clone();
+        }
     }
 
     public Expected<IAccount, Error> getAccount(Id id)
     {
-        var rtn = accounts.get(id);
+        IAccount rtn;
+
+        try (var guard = new Guard(readLock))
+        {
+            rtn = accounts.get(id);
+        }
 
         if (rtn == null)
         {
@@ -75,26 +101,29 @@ public class Contract
 
     public Result<Error> dismiss()
     {
-        var accounts = this.accounts.entrySet();
-
-        for (var items : accounts)
+        try (var guard = new Guard(this.writeLock))
         {
-            var account = items.getValue();
+            var accounts = this.accounts.entrySet();
 
-            if (account.getBoundPeriod() <= 0)
+            for (var items : accounts)
             {
-                continue;
+                var account = items.getValue();
+
+                if (account.getBoundPeriod() <= 0)
+                {
+                    continue;
+                }
+
+                return Result.error(Error.DisallowedDuringBound);
             }
 
-            return Result.error(Error.DisallowedDuringBound);
-        }
+            for (var account : accounts)
+            {
+                closeAccount(account.getKey());
+            }
 
-        for (var account : accounts)
-        {
-            closeAccount(account.getKey());
+            accounts.clear();
         }
-
-        accounts.clear();
 
         return Result.success();
     }
@@ -119,7 +148,11 @@ public class Contract
         }
 
         var id = this.id.create();
-        this.accounts.put(id, rtn);
+
+        try (var guard = new Guard(writeLock))
+        {
+            this.accounts.put(id, rtn);
+        }
 
         return Pair.of(id, rtn);
     }
@@ -131,14 +164,23 @@ public class Contract
         rtn.calculateMonthlyRate();
 
         var id = this.id.create();
-        this.accounts.put(id, rtn);
+
+        try (var guard = new Guard(writeLock))
+        {
+            this.accounts.put(id, rtn);
+        }
 
         return Pair.of(id, rtn);
     }
 
     public Result<Error> closeAccount(Id id)
     {
-        var account = accounts.get(id);
+        IAccount account;
+
+        try (var guard = new Guard(readLock))
+        {
+            account = accounts.get(id);
+        }
 
         if (account == null)
         {
@@ -150,7 +192,10 @@ public class Contract
             return Result.error(Error.DisallowedDuringBound);
         }
 
-        this.accounts.remove(id);
+        try (var guard = new Guard(writeLock))
+        {
+            this.accounts.remove(id);
+        }
 
         return Result.success();
     }
@@ -167,16 +212,19 @@ public class Contract
             return Result.error(Error.BadCredability);
         }
 
-        for (var item : accounts.entrySet())
+        try (var guard = new Guard(readLock))
         {
-            var account = item.getValue();
-
-            if (account.getType() != AccountType.GiroAccount)
+            for (var item : accounts.entrySet())
             {
-                continue;
-            }
+                var account = item.getValue();
 
-            ((AccountGiro) account).setDispoLimit(amount);
+                if (account.getType() != AccountType.GiroAccount)
+                {
+                    continue;
+                }
+
+                ((AccountGiro) account).setDispoLimit(amount);
+            }
         }
 
         return Result.success();
@@ -184,16 +232,19 @@ public class Contract
 
     public Result<Error> setSendLimit(double sendLimit)
     {
-        for (var item : accounts.entrySet())
+        try (var guard = new Guard(readLock))
         {
-            var account = item.getValue();
-
-            if (account.getType() != AccountType.GiroAccount)
+            for (var item : accounts.entrySet())
             {
-                continue;
-            }
+                var account = item.getValue();
 
-            ((AccountGiro) account).setSendLimit(sendLimit);
+                if (account.getType() != AccountType.GiroAccount)
+                {
+                    continue;
+                }
+
+                ((AccountGiro) account).setSendLimit(sendLimit);
+            }
         }
 
         return Result.success();
