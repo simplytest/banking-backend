@@ -60,10 +60,16 @@ class RegisterSpringTest
                 Assertions.assertTrue(parsed.successful());
 
                 final var result = parsed.value();
-                final var contract = contractRepository.findById(result.id());
 
-                Assertions.assertEquals(
-                                contract.get().value().getCustomer().getLastName(),
+                final var contract = contractRepository.findById(result.id()).get()
+                                .value();
+
+                Assertions.assertEquals(contract.getCustomer().getLastName(),
                                 "SpringTest");
+
+                var accounts = contract.getAccounts().values().stream().toList();
+
+                Assertions.assertEquals(accounts.size(), 1);
+                Assertions.assertEquals(accounts.get(0).getBalance(), 1337);
         }
 }
