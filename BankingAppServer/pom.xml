@@ -41,6 +41,14 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.wiremock/wiremock -->
+        <dependency>
+            <groupId>org.wiremock</groupId>
+            <artifactId>wiremock</artifactId>
+            <version>3.5.4</version>
+            <scope>test</scope>
+        </dependency>
+
         <dependency>
             <groupId>com.simplytest</groupId>
             <artifactId>core</artifactId>
