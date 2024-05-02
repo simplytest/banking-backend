@@ -35,7 +35,10 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @WireMockTest(httpPort = 8081)
+
+//Variante 1:
 @TestPropertySource("classpath:application-test.properties")
+//Variante 2:
 //@TestPropertySource(properties = {"validationurl=http://localhost:8081"})
 public class TransferMoneyMockedTests {
 
@@ -46,11 +49,13 @@ public class TransferMoneyMockedTests {
   private ContractRepository contractRepository;
 
 
-  //Übung 7: transfer Money -> externer call
-  // Lernziele: Einsatz von WireMock Proxy / Server
-  // Austausch von application.properties durch Mock Server über TestPropertySource
+  //Übung 7: transfer Money mit externer Validierung:
+  // Lernziele:
+  //  - Analysieren der Abhängigkeiten von Controller Endpunkten
+  //  - Einsatz von WireMock Proxy / Server um Abhängigkeiten zu lösen
+  //  - Richtiger Einsatz von Application Properties durch Test Property Source
 
-  // ziel: Externe Calls abfangen um positive und negative szenarien zu testen
+  // Endergebnis: Externe Calls abfangen, positive und negative Szenarien
   @Test
   void uebung7_1_successfullTransferMoney() {
     String iban = "DE02120300000000202051";

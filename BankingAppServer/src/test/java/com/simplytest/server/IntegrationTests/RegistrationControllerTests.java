@@ -35,10 +35,11 @@ public class RegistrationControllerTests {
 
 
   //Übungsziel:
-  // ansprechen vom rest Template
-  // nutzung vom autowired rest template (nicht repository)
+  // erstmaliges verwenden von Test Rest Template
+  // Nutzung vom autowired Annotation
   // zeigen, dass Request verarbeitet wird und ein HTTP Status zurückommt und ein Body
-  // -> noch keine Auswertung
+  // -> ggf. zeigen, dass Debugpunkte im Controller gesetzt werden können
+  // -> an dieser Stelle noch keine Auswertung vom "Json"
   @Test
   void uebung1_canCreateNewContract() {
     var customer = createDummyCustomer();
@@ -49,8 +50,8 @@ public class RegistrationControllerTests {
   }
 
   //Übungsziel:
-  // Parsen und Asserten von Responses
-  // Autowired -> zugriff auf Repository
+  // Zugriff auf internes Repository über Autowired Annotation
+  //
   @Test
   void uebung2_canCreateNewContractWithAssertionBody() {
     var customer = createDummyCustomer();
@@ -59,28 +60,29 @@ public class RegistrationControllerTests {
     //send request
     var restResponse = restTemplate.postForEntity("/api/contracts", customer, String.class);
 
-    final var parsedRequest = (Result<ContractRegistrationResult, Error>) Json.get().fromJson(restResponse.getBody(), TypeToken.getParameterized(Result.class,
-        ContractRegistrationResult.class, Error.class));
-
     //validate response
     Assertions.assertEquals(HttpStatusCode.valueOf(201), restResponse.getStatusCode());
     Assertions.assertEquals(contractRepository.count(), initial + 1);
 
-    // im repo prüfen ob angelegt
-    var contract = contractRepository.findAll().get(0);
+    // Parsen vom Response ins DTO
+    final var parsedRequest =
+        (Result<ContractRegistrationResult, Error>)
+            Json.get().fromJson(restResponse.getBody(),
+                TypeToken.getParameterized(Result.class, ContractRegistrationResult.class, Error.class));
 
-    Assertions.assertEquals(parsedRequest.value().id(), contract.value().getId().parent());
+    // Suchen vom Contract im Repo mit der generierten Id
+    var contract = contractRepository.findById(parsedRequest.value().id()).get();
+    // Prüfung ob die Daten richtig im Repository gespeichert wurden
     Assertions.assertEquals(customer.lastName, contract.value().getCustomer().getLastName());
   }
 
 
   //Übungsziel:
-  // 0. pragmatisches Vorbereiten von Testdaten über "Request" -> save -> parse -> bereitstellen in einer Hilfsmethode
-  // 1. pragmatische Anlage von Testdaten direkt über das repository (skip der API Anlage)
+  // 0. pragmatisches Vorbereiten von Testdaten anhand echter Backend Calls (vs. Anlage als DTOs)
+  // 1. pragmatische Anlage von Testdaten direkt über das Repository (skip der API Anlage)
   // 2. Anfrage des Services über Rest mit "Auth" Hintergrund -> fail
   // 2.1 JWT zusammenstellen -> über Testfall davor -> Anfragen bzw interne Methode für die Erstellung nutzen
-
-  //nebeneffekt: auf getForEntity, exchange und execute methoden von restTemplate eingehen
+  // 3. auf Unterschiede von getForEntity, exchange und execute methoden von restTemplate eingehen
   @Test
   void uebung3_canRequestContractInformation() {
     contractRepository.save(new DBContract(createDummyContract()));
@@ -109,8 +111,8 @@ public class RegistrationControllerTests {
     Assertions.assertTrue(account.isPresent(), "Giro Konto exists");
   }
 
-  //Übung 4: vertrag kündigen
-  // ziel wiederholung?
+  //Übung 4: Vertrag kündigen
+  // Wiederholung vom gelernten am neuen Endpunkt, keine neuen Inhalte
   @Test
   void uebung4_canCancelContract() {
     contractRepository.save(new DBContract(createDummyContract()));
@@ -135,8 +137,10 @@ public class RegistrationControllerTests {
   }
 
 
-  //Übung 5: immobilienfinanzierung abschließen
-  // ziel wiederholung + aufbau komplexerer Szenarien + auswertung komplexerer Rückgabewerte
+  //Übung 5: Immobilienfinanzierung abschließen
+  // Wiederholung:
+  //  + aufbau komplexerer Szenarien
+  //  + Auswertung komplexerer Rückgabewerte
   @Test
   void uebung5_createRealtyContract() {
     contractRepository.save(new DBContract(createDummyContract()));
@@ -167,6 +171,8 @@ public class RegistrationControllerTests {
     Assertions.assertEquals(26.666666666666668, immoaccount.getMonthlyAmount());
 
   }
+
+  // Übung 6 -> siehe TransferMoney ControllerTests.java
 
 
 
@@ -230,6 +236,7 @@ public class RegistrationControllerTests {
     Assertions.assertEquals(HttpStatusCode.valueOf(404), infoResponse.getStatusCode());
   }
 
+  //Variante mit JSON Anlage
   private Contract createDummyContract() {
 
     String dummy = "{\n" +
@@ -281,6 +288,7 @@ public class RegistrationControllerTests {
 
   }
 
+  //Variante Testdata Anlage über DTO
   private CustomerData createDummyCustomer() {
     var customer = new CustomerData();
     customer.type = CustomerData.CustomerType.Private;

@@ -38,12 +38,12 @@ public class TransferMoneyControllerTests {
   private ContractRepository contractRepository;
 
 
-  //Übung 6: transfer Money -> Mockbeans verwenden
-  //debug punkte im Controller Code setzen -> getAccount von Account Controller
-  // -> contractRepo über MockBean wegmocken
-  // ziel: Verwendung Mocken von internen Anfragen um isolierter Testen zu können
-  //zeigen von unterschied zu rest assured / postman
-  // -> aktives isolieren der Datenhaltungsschicht und Konzentration auf Prüfung von Controller Logik
+  //Übung 6: Transfer Money
+  // Lernziele: Isolierung der Persistierungsschicht mit Hilfe von MockBeans
+  //  - zeigen, dass MockBean das Repository im Debug Zustand austauscht
+  //  - zeigen von Unterschied zu Rest Assured / Postman
+
+  // -> aktives Isolieren der Datenhaltungsschicht und Konzentration auf Prüfung von Controller Logik
   @Test
   void uebung6_canTransferMoney() {
     var dummyContract = createDummyContract();
@@ -122,25 +122,5 @@ public class TransferMoneyControllerTests {
 
     return Json.get().fromJson(dummy, Contract.class);
 
-  }
-
-  private CustomerData createDummyCustomer() {
-    var customer = new CustomerData();
-    customer.type = CustomerData.CustomerType.Private;
-
-    var birthDay = Calendar.getInstance();
-    birthDay.set(2000, 01, 01);
-
-    customer.birthDay = birthDay.getTime();
-    customer.address = new Address();
-    customer.firstName = "Foo";
-    customer.lastName = "Bar";
-
-    customer.password = "password";
-
-    customer.address.setStreet("Some Street");
-    customer.address.setZipCode("12345");
-
-    return customer;
   }
 }
