@@ -35,7 +35,7 @@ public class RegistrationControllerTests {
 
 
   //Übungsziel:
-  // erstmaliges verwenden von Test Rest Template
+  // erstmaliges Verwenden von Test Rest Template
   // Nutzung vom autowired Annotation
   // zeigen, dass Request verarbeitet wird und ein HTTP Status zurückommt und ein Body
   // -> ggf. zeigen, dass Debugpunkte im Controller gesetzt werden können
