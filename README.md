@@ -10,3 +10,8 @@ To build the docker image, simply build the dockerfile present in the root direc
 $ docker buildx build -t banking-backend .
 $ docker run -p 5005:5005 banking-backend
 ```
+
+## API Documentation
+
+Find the openAPI Documentation at [API Docu](localhost:5005/swagger-ui/index.html)
+
