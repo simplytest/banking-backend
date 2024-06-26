@@ -2,10 +2,13 @@ package com.simplytest.server.api;
 
 import java.util.HashMap;
 
+import jakarta.validation.ValidationException;
 import org.iban4j.IbanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.simplytest.core.Error;
@@ -171,6 +175,60 @@ public class AccountController
             return Result.success();
         }
     }
+
+    @Value("${validationurl}")
+    String validationurl;
+
+    @ResponseBody
+    @PostMapping(path = "{accountId}/sendexternal")
+    public Result<Boolean, Error> sendMoneyExternal(
+        @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
+        @PathVariable @Valid long accountId, @RequestBody SendMoney data,
+        HttpServletResponse response)
+    {
+        var parsedToken = JWT.getId(token);
+
+        if (parsedToken.isEmpty())
+        {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            return Result.error(Error.BadCredentials);
+        }
+
+        var id = new Id(parsedToken.get(), accountId);
+
+        try
+        {
+            String validationUrl = this.validationurl + "/validator/validate?iban=" + data.target().raw();
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> validationResponse = restTemplate.getForEntity(validationUrl, String.class);
+
+            if (!validationResponse.getStatusCode().is2xxSuccessful()) {
+                throw new ValidationException("Fehler beim Validieren der IBAN");
+            }
+
+        } catch (Exception e)
+        {
+            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            return Result.error(Error.BadIban);
+
+
+        }
+
+        try (var updatable = getAccount(id))
+        {
+            var account = updatable.value();
+            var result = account.sendMoney(data.amount(), data.target().value());
+
+            if (!result.successful())
+            {
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                return Result.error(result.error());
+            }
+
+            return Result.success();
+        }
+    }
+
 
     @ResponseBody
     @PostMapping(path = "{accountId}/transfer")
