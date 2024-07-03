@@ -52,15 +52,15 @@ public class BankingServer
     @EventListener(ApplicationReadyEvent.class)
     public void initializeDemo()
     {
-        if (System.getenv("SIMPLYTEST_DEMO") == null)
-        {
-            return;
-        }
-
         var response = new MockHttpServletResponse();
 
         controller.registerContract(createDemoUser("demo", "demo"), 1000.0,
                 response);
+
+        if (System.getenv("SIMPLYTEST_DEMO") == null)
+        {
+            return;
+        }
 
         var john = createDemoUser("John", "123");
         var result = controller.registerContract(john, 0.0, response);
