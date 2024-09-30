@@ -10,4 +10,3 @@ To build the docker image, simply build the dockerfile present in the root direc
 $ docker buildx build -t banking-backend .
 $ docker run -p 5005:5005 banking-backend
 ```
- 
