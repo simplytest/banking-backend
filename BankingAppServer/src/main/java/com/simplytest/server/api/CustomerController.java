@@ -1,6 +1,7 @@
 package com.simplytest.server.api;
 
 import com.simplytest.core.customers.Address;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 @Validated
 @RestController
 @RequestMapping(path = "api/customers")
+@SecurityRequirement(name = "JwtAuth")
 public class CustomerController
 {
     @Autowired

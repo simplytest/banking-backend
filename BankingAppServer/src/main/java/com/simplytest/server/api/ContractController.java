@@ -4,6 +4,8 @@ import java.util.Map;
 
 import com.simplytest.core.accounts.AccountType;
 import com.simplytest.core.contracts.Contract;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -44,6 +46,7 @@ import jakarta.validation.Valid;
 @Validated
 @RestController
 @RequestMapping(path = "api/contracts")
+@SecurityRequirement(name = "JwtAuth")
 public class ContractController
 {
     @Autowired
@@ -67,6 +70,10 @@ public class ContractController
 
     @ResponseBody
     @PostMapping(path = "login/{id}")
+    @Operation(
+            summary = "Öffentlicher Endpoint, kein Login nötig",
+            security = {} // <- Leeres Array entfernt global gesetzte Security-Anforderung
+    )
     public Result<String, Error> login(@PathVariable long id,
             @RequestBody String password, HttpServletResponse response)
     {
@@ -83,6 +90,10 @@ public class ContractController
 
     @ResponseBody
     @PostMapping()
+    @Operation(
+            summary = "Öffentlicher Endpoint, kein Login nötig",
+            security = {} // <- Leeres Array entfernt global gesetzte Security-Anforderung
+    )
     public Result<ContractRegistrationResult, Error> registerContract(
             @RequestBody @Valid CustomerData data,
             @RequestParam(required = false) Double initialBalance,
@@ -133,6 +144,9 @@ public class ContractController
         return Result.success(result);
     }
 
+    @Operation(
+            summary = "Gibt den Contract zurück"
+    )
     @ResponseBody
     @GetMapping()
     public Contract getContract(

@@ -2,6 +2,7 @@ package com.simplytest.server.api;
 
 import java.util.HashMap;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.ValidationException;
 import org.iban4j.IbanUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,7 @@ import jakarta.validation.Valid;
 @Validated
 @RestController
 @RequestMapping(path = "api/accounts")
+@SecurityRequirement(name = "JwtAuth")
 public class AccountController
 {
     @Autowired
