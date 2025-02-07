@@ -121,7 +121,6 @@ public class AccountControllerTest {
     }
 
     // transfer money
-
     @ParameterizedTest
     @ValueSource(doubles = { 350.0, 1000.0})
     public void happyPathTransferMoneyCheck(double rueckzahlung) {
