@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -25,9 +27,11 @@ import org.springframework.http.*;
 import com.simplytest.core.Error;
 
 import java.lang.reflect.Type;
+import java.util.Locale;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class AccountControllerTest {
+    final double initialGiroBalance = 1000.00;
     DBContract myDBContract;
     Contract theContract;
     AccountHandler accountHandler;
@@ -53,20 +57,20 @@ public class AccountControllerTest {
 
     @Test
     @DisplayName("Den Kontostand abfragen")
-    public void happyPathCheckBalance2() {
+    public void happyPathCheckBalance() {
         Id accountId = new Id(theContract.getId().parent(),1);
-
         String jwtToken = JWT.generate(theContract.getId().parent());
-        double balance = accountHandler.checkBalance(restTemplate, accountId, 0.0, jwtToken);
-        Assertions.assertEquals(0.0, balance);
+        double balance = accountHandler.checkBalance(restTemplate, accountId, initialGiroBalance, jwtToken);
+        Assertions.assertEquals(initialGiroBalance, balance);
     }
     // receive Money
 
     @Test
     @DisplayName("Geld erhalten und Kontostand prüfen")
     public void happyPathReceiveMoney() {
+        var amountReceived = 300.0;
         Id accountId = new Id(theContract.getId().parent(),1);
-        String url = String.format("/api/accounts/%d/receive?amount=%d", accountId.child(), 300);
+        String url = String.format(Locale.US,"/api/accounts/%d/receive?amount=%02.2f", accountId.child(), amountReceived);
 
         String jwtToken = JWT.generate(theContract.getId().parent());
         var header = new HttpHeaders();
@@ -82,7 +86,7 @@ public class AccountControllerTest {
         Assertions.assertEquals(HttpStatusCode.valueOf(200), responseReceive.getStatusCode());
         Assertions.assertEquals(true, receiveRespone.value());
 
-        accountHandler.checkBalance(restTemplate, accountId, 300.0, jwtToken);
+        accountHandler.checkBalance(restTemplate, accountId, amountReceived + initialGiroBalance, jwtToken);
     }
 
     // send Money
@@ -91,18 +95,18 @@ public class AccountControllerTest {
     @DisplayName("Geld senden und Kontostand prüfen")
     public void happyPathSendMoney() {
         double amountSent = 12.0;
-        double balance = 1000.0;
+        double balance;
         String iban = "DE02120300000000202051";
         Id accountId = new Id(theContract.getId().parent(),1);
         String url = String.format("/api/accounts/%d/send", accountId.child());
 
-        balance = accountHandler.checkBalance(restTemplate, accountId, balance, JWT.generate(theContract.getId().parent()));
+        balance = accountHandler.checkBalance(restTemplate, accountId, initialGiroBalance, JWT.generate(theContract.getId().parent()));
         String jwtToken = JWT.generate(theContract.getId().parent());
         var headers = new HttpHeaders();
         headers.set(HttpHeaders.AUTHORIZATION, jwtToken);
         headers.setContentType(MediaType.APPLICATION_JSON);
 
-        String body = Json.get().toJson(new SendMoney(new Iban(iban), 12));
+        String body = Json.get().toJson(new SendMoney(new Iban(iban), amountSent));
         HttpEntity<String> entity = new HttpEntity<>(body, headers);
 
         var responseSend = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
@@ -118,10 +122,27 @@ public class AccountControllerTest {
 
     // transfer money
 
+    @ParameterizedTest
+    @ValueSource(doubles = { 350.0, 1000.0})
+    public void happyPathTransferMoneyCheck(double rueckzahlung) {
+        final double initialRealEastateBalance = -35000.00;
+        Id accountId = new Id(theContract.getId().parent(),1);
+        Id realEastateAccount = new Id(theContract.getId().parent(),2);
+        String url = String.format("/api/accounts/%d/transfer", accountId.child());
+        var dummyContract = new DummyContract();
+        theContract = dummyContract.addRealEstateToDummy(theContract, -initialRealEastateBalance, 500);
+        theContract = dummyContract.changeCustomerData(theContract, "Hanibal", "Lecter");
+        myDBContract = repository.save(new DBContract(theContract));
 
-//    TransferMoney myMoney = new TransferMoney(
-//            new AccountId(String.format("%05d:%05d", myContract.value().getId().parent(), frAccountId)),
-//            sparBetrag);
-//
-//    entity = new HttpEntity<>(Json.get().toJson(myMoney), header);
+        accountHandler.checkBalance(restTemplate, new Id(theContract.getId().parent(),1), initialGiroBalance, JWT.generate(theContract.getId().parent()));
+        accountHandler.checkBalance(restTemplate, new Id(theContract.getId().parent(),2), initialRealEastateBalance, JWT.generate(theContract.getId().parent()));
+
+        accountHandler.transferMoney(restTemplate, myDBContract, accountId, realEastateAccount, rueckzahlung);
+
+        accountHandler.checkBalance(restTemplate, new Id(theContract.getId().parent(),1), initialGiroBalance - rueckzahlung, JWT.generate(theContract.getId().parent()));
+        accountHandler.checkBalance(restTemplate, new Id(theContract.getId().parent(),2), initialRealEastateBalance + rueckzahlung, JWT.generate(theContract.getId().parent()));
+
+    }
+
+
 }
