@@ -58,7 +58,6 @@ public class AccountControllerMockTest {
         when(controller.registerContract(any(), any(), any()))
                 .thenReturn(new Result<>(Optional.of(new ContractRegistrationResult(anId, jwtToken)), Optional.empty()));
 
-
         String url = String.format("/api/accounts/%d/balance", myContract.getId().parent());
         // create header for HTTP Request
         HttpHeaders headers = new HttpHeaders();

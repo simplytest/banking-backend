@@ -43,7 +43,7 @@ public class AccountControllerWireMockTest {
     @Test
     public void testTransferMoneyExternalGood() {
         String iban = "DE02120300000000202051";
-        stubFor(get("/validator/validate?iban=" + iban).willReturn(ok()));
+        stubFor(get("/validator/validate?iban=" + iban).willReturn(serverError()));
 
         String jwtToken = JWT.generate(myContract.id());
         var accountID = myContract.value().getAccounts().entrySet().stream()
