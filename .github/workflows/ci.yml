@@ -14,8 +14,8 @@ jobs:
       - name: 🏗️ Setup Dependencies
         run: |
           dnf install -y java-21-openjdk maven git
-          alternatives --set java $(update-alternatives --list java | grep 'java-21')
-          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+          alternatives --set java /usr/lib/jvm/java-21-openjdk/bin/java
+          export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
       
 
       - name: 🔍 Verify Java and Maven
