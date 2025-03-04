@@ -13,7 +13,7 @@ jobs:
     steps:
       - name: 🏗️ Setup Dependencies
         run: |
-          dnf install -y java-17-openjdk maven git
+          dnf install -y java-21-openjdk maven git
 
       - name: 📥 Checkout
         uses: actions/checkout@v3
