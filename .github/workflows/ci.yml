@@ -17,9 +17,9 @@ jobs:
           alternatives --remove java /usr/lib/jvm/java-17-openjdk-17.0.11.0.9-1.fc38.x86_64/bin/java || true
           alternatives --install /usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64/bin/java 210003
           alternatives --set java /usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64/bin/java
-          export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.3.0.9-1.fc38.x86_64
+          export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64
           export PATH=$JAVA_HOME/bin:$PATH
-          echo "export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.3.0.9-1.fc38.x86_64" >> $GITHUB_ENV
+          echo "export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64" >> $GITHUB_ENV
           echo "export PATH=$JAVA_HOME/bin:$PATH" >> $GITHUB_ENV
           java -version
           echo "JAVA_HOME is $JAVA_HOME"
