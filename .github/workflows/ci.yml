@@ -23,7 +23,7 @@ jobs:
 
       - name: 🏗️ Setup Dependencies
         run: |
-          dnf install -y java-21-openjdk maven git
+          dnf install -y java-21-openjdk git
           alternatives --remove java /usr/lib/jvm/java-17-openjdk-17.0.11.0.9-1.fc38.x86_64/bin/java
           alternatives --install /usr/bin/java java /usr/lib/jvm/java-21-openjdk-21.0.3.0.9-1.fc38.x86_64/bin/java 210003
           alternatives --set java /usr/lib/jvm/java-21-openjdk-21.0.3.0.9-1.fc38.x86_64/bin/java
@@ -32,6 +32,8 @@ jobs:
           java -version
           echo "JAVA_HOME is $JAVA_HOME"
           mvn -version
+          echo "export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.3.0.9-1.fc38.x86_64" >> $GITHUB_ENV
+          echo "export PATH=$JAVA_HOME/bin:$PATH" >> $GITHUB_ENV
       
       - name: 📥 Checkout
         uses: actions/checkout@v3
@@ -41,6 +43,9 @@ jobs:
         # see: https://github.com/actions/checkout/issues/363
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - name: 🛠 Debug Build
+        run: mvn clean install -X
 
       - name: 🧪 Unit Tests
         run: |
