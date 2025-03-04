@@ -11,6 +11,10 @@ jobs:
     container: fedora:38
 
     steps:
+      - name: 📦 Set up Maven
+        uses: s4u/setup-maven-action@v1
+        with:
+          maven-version: 3.9.6
       - name: 🏗️ Setup Dependencies
         run: |
           dnf install -y java-21-openjdk maven git
