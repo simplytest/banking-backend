@@ -14,6 +14,15 @@ jobs:
       - name: 🏗️ Setup Dependencies
         run: |
           dnf install -y java-21-openjdk maven git
+          alternatives --set java $(update-alternatives --list java | grep 'java-21')
+          export JAVA_HOME=$(dirname $(dirname $(readlink -f $(which java))))
+      
+
+      - name: 🔍 Verify Java and Maven
+        run: |
+          java -version
+          echo "JAVA_HOME is $JAVA_HOME"
+          mvn -version
 
       - name: 📥 Checkout
         uses: actions/checkout@v3
