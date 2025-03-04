@@ -20,8 +20,8 @@ jobs:
           alternatives --set java /usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64/bin/java
           export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64
           export PATH=$JAVA_HOME/bin:$PATH
-          echo "export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64" >> $GITHUB_ENV
-          echo "export PATH=$JAVA_HOME/bin:$PATH" >> $GITHUB_ENV
+          echo "JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64" >> $GITHUB_ENV
+          echo "PATH=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64/bin:$PATH" >> $GITHUB_ENV
           java -version
           echo "JAVA_HOME is $JAVA_HOME"
           mvn -version
@@ -37,10 +37,13 @@ jobs:
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: 🛠 Debug Build
-        run: mvn clean install -X
+        run: |
+          mvn -version
+          mvn clean install -X
 
       - name: 🧪 Unit Tests
         run: |
+          mvn -version
           mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
 
       - name: 🧪 Integration Tests
