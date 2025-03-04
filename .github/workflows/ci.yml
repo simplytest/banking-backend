@@ -15,6 +15,7 @@ jobs:
         run: |
           dnf install -y java-21-openjdk maven git --setopt=install_weak_deps=False
           alternatives --remove java /usr/lib/jvm/java-17-openjdk-17.0.11.0.9-1.fc38.x86_64/bin/java || true
+          dnf remove java-17-openjdk-headless || true
           alternatives --install /usr/bin/java java /usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64/bin/java 210003
           alternatives --set java /usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64/bin/java
           export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64
