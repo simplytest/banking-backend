@@ -12,9 +12,14 @@ jobs:
 
     steps:
       - name: 📦 Set up Maven
-        uses: s4u/setup-maven-action@v1
-        with:
-          maven-version: 3.9.6
+        run: |
+          MAVEN_VERSION=3.9.6
+          wget https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
+          tar -xvzf apache-maven-${MAVEN_VERSION}-bin.tar.gz
+          mv apache-maven-${MAVEN_VERSION} /opt/maven
+          echo "export PATH=/opt/maven/bin:$PATH" >> $GITHUB_ENV
+          echo "export MAVEN_HOME=/opt/maven" >> $GITHUB_ENV
+
       - name: 🏗️ Setup Dependencies
         run: |
           dnf install -y java-21-openjdk maven git
