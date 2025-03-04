@@ -36,11 +36,6 @@ jobs:
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
-      - name: 🛠 Debug Build
-        run: |
-          mvn -version
-          mvn clean install -X
-
       - name: 🧪 Unit Tests
         run: |
           mvn -version
