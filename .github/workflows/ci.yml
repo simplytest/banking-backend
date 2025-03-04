@@ -11,19 +11,15 @@ jobs:
     container: fedora:38
 
     steps:
-      - name: 📦 Set up Maven
+      - name: 🏗️ Setup Dependencies
         run: |
-          dnf install -y wget
+          dnf install -y java-21-openjdk maven git wget
           MAVEN_VERSION=3.9.6
           wget https://dlcdn.apache.org/maven/maven-3/${MAVEN_VERSION}/binaries/apache-maven-${MAVEN_VERSION}-bin.tar.gz
           tar -xvzf apache-maven-${MAVEN_VERSION}-bin.tar.gz
           mv apache-maven-${MAVEN_VERSION} /opt/maven
           echo "export PATH=/opt/maven/bin:$PATH" >> $GITHUB_ENV
           echo "export MAVEN_HOME=/opt/maven" >> $GITHUB_ENV
-
-      - name: 🏗️ Setup Dependencies
-        run: |
-          dnf install -y java-21-openjdk git
           alternatives --install /usr/bin/java java /usr/lib/jvm/java-21-openjdk-21.0.3.0.9-1.fc38.x86_64/bin/java 210003
           alternatives --set java /usr/lib/jvm/java-21-openjdk-21.0.3.0.9-1.fc38.x86_64/bin/java
           export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.3.0.9-1.fc38.x86_64
