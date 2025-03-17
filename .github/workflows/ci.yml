@@ -8,13 +8,25 @@ name: 🧪 Continuous Integration
 jobs:
   ci:
     runs-on: ubuntu-latest
-    container: fedora:38
+    container: fedora:39
 
     steps:
       - name: 🏗️ Setup Dependencies
         run: |
-          dnf install -y java-17-openjdk maven git
+          dnf install -y java-21-openjdk maven git --setopt=install_weak_deps=False
+          alternatives --remove java /usr/lib/jvm/java-17-openjdk-17.0.11.0.9-1.fc38.x86_64/bin/java || true
+          dnf remove java-17-openjdk-headless || true
+          alternatives --install /usr/bin/java java /usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64/bin/java 210003
+          alternatives --set java /usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64/bin/java
+          export JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64
+          export PATH=$JAVA_HOME/bin:$PATH
+          echo "JAVA_HOME=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64" >> $GITHUB_ENV
+          echo "PATH=/usr/lib/jvm/java-21-openjdk-21.0.5.0.11-1.fc39.x86_64/bin:$PATH" >> $GITHUB_ENV
+          java -version
+          echo "JAVA_HOME is $JAVA_HOME"
+          mvn -version
 
+      
       - name: 📥 Checkout
         uses: actions/checkout@v3
 
@@ -26,6 +38,7 @@ jobs:
 
       - name: 🧪 Unit Tests
         run: |
+          mvn -version
           mvn test -Dtest="CucumberUnitTest" -Dsurefire.failIfNoSpecifiedTests=false
 
       - name: 🧪 Integration Tests
