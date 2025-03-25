@@ -86,7 +86,7 @@ public class DummyContract {
                         "sendLimit": 3000.0,
                         "dispoLimit": 0.0,
                         "dispoRate": 0.0,
-                        "balance": 0.0,
+                        "balance": 1000.0,
                         "boundPeriod": 0.0,
                         "interestRate": 0.0
                       }
