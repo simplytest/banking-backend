@@ -11,12 +11,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatusCode;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.lang.reflect.Type;
 import java.util.Optional;
@@ -28,8 +28,17 @@ public class AccountControllerMockTest {
     @Autowired
     TestRestTemplate restTemplate;
 
-    @MockBean
+    @MockitoBean
     ContractRepository contractRepository;
+
+    // Verwende BeforeEach, um nachfolgende Tests vorzubereiten
+    // Schreibe Methoden, die die Endpunkte receibe, send und transfer testen.
+    // Verwende ParameterizedTest, um die verschiedenen Fälle zu testen
+    // Lege data und util packages an, um die Daten und Hilfsklassen zu speichern.
+    // Um ein lauffähigs Beispiel zu haben, ist in der BankingServer ein Schritt auskommentiert
+    //        controller.registerContract(createDemoUser("demo", "demo"), 1000.0,
+    //                response);
+    // was müssen wir hinzufügen um diese Zeilen in der Hauptapplikation belassen zu können?
 
     @Test
     public void getAccountBalanceMock() {
