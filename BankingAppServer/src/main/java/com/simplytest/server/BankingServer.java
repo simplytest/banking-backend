@@ -54,8 +54,8 @@ public class BankingServer
     {
         var response = new MockHttpServletResponse();
 
-        controller.registerContract(createDemoUser("demo", "demo"), 1000.0,
-                response);
+//        controller.registerContract(createDemoUser("demo", "demo"), 1000.0,
+//                response);
 
         if (System.getenv("SIMPLYTEST_DEMO") == null)
         {
