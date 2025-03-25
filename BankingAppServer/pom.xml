@@ -51,9 +51,9 @@
     <dependencies>
         <!-- https://mvnrepository.com/artifact/org.wiremock/wiremock -->
         <dependency>
-            <groupId>org.wiremock</groupId>
-            <artifactId>wiremock</artifactId>
-            <version>3.5.4</version>
+            <groupId>org.wiremock.integrations</groupId>
+            <artifactId>wiremock-spring-boot</artifactId>
+            <version>3.9.0</version>
             <scope>test</scope>
         </dependency>
 
