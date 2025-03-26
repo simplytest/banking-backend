@@ -9,15 +9,12 @@ import com.simplytest.server.repo.ContractRepository;
 import com.simplytest.server.utils.Result;
 import org.iban4j.Iban;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
-import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -35,7 +32,7 @@ import static org.mockito.Mockito.*;
 
 @EnableWireMock(@ConfigureWireMock(portProperties = "localhost", port = 8081))
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, properties = {"validationurl = http://localhost:8081"})
-public class AccountControllerMockTest2 {
+public class AccountControllerWireMockTest {
     @Autowired
     TestRestTemplate restTemplate;
     @MockitoBean

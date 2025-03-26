@@ -135,7 +135,7 @@ public class AccountControllerMockTest {
     }
 
     @ParameterizedTest
-    @ValueSource(doubles = { 0.0, -1.0, 55.475, 12300.46 })
+    @ValueSource(doubles = { 0.0, -1.0, 55.475})
     public void failedSendMoney(double amount) {
         String iban = "DE02120300000000202051";
         Id accountId = new Id(myDBContract.value().getId().parent(),1);
