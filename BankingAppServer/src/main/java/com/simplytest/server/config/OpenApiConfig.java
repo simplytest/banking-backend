@@ -8,7 +8,9 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import io.swagger.v3.oas.annotations.servers.Server;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -28,8 +30,18 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
+                .openapi("3.0.0")
                 .components(new Components())
-                .info(new Info().title("Contact Application API").description(
-                        "This is a sample Spring Boot RESTful service using springdoc-openapi and OpenAPI 3."));
+                .info(new Info()
+                        .title("Contact Application API")
+                        .version("1.0.0") // 👈 Wichtig für Swagger!
+                        .description("This is a sample Spring Boot RESTful service using springdoc-openapi and OpenAPI 3.")
+                        .contact(new Contact()
+                                .name("SimplyTest Dev Team")
+                                .email("dev@simplytest.com")
+                                .url("https://www.simplytest.com"))
+                        .license(new License()
+                                .name("Apache 2.0")
+                                .url("http://springdoc.org")));
     }
 }
