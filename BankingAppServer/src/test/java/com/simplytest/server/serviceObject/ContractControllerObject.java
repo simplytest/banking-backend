@@ -30,8 +30,7 @@ public class ContractControllerObject {
         System.out.println("Creating default customer");
         var dummyCustomer = new DummyCustomer();
         var customer = dummyCustomer.createDefaultCustomerDTO();
-        ResponseEntity<String> response = restTemplate.postForEntity(contractUrl, customer, String.class);
-        return response;
+        return restTemplate.postForEntity(contractUrl, customer, String.class);
     }
     public String validateCustomerCreation(ResponseEntity<String> response) {
         Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
