@@ -1,9 +1,13 @@
 package com.simplytest.server.integration;
 
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.simplytest.core.Error;
+import com.simplytest.server.apiData.ContractRegistrationResult;
 import com.simplytest.server.apiData.CustomerData;
 import com.simplytest.server.json.Json;
 import com.simplytest.server.serviceObject.ContractControllerObject;
+import com.simplytest.server.utils.Result;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +17,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+
+import java.lang.reflect.Type;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ContractControllerTest {
@@ -107,10 +113,15 @@ public class ContractControllerTest {
         headers.setContentType(MediaType.APPLICATION_JSON);
         CustomerData customer = createCustomer();
         customer.password = "nixda";
-        HttpEntity<String> requestEntity = new HttpEntity<>(customer.toString(), headers);
+        HttpEntity<String> requestEntity = new HttpEntity<>(Json.get().toJson(customer), headers);
         var response = restTemplate.postForEntity(url, requestEntity, String.class);
         System.out.println(response);
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        Type contractResponseType = new TypeToken<Result<ContractRegistrationResult, Error>>() {
+        }.getType();
+        var parsed = (Result<ContractRegistrationResult, Error>) Json.get().fromJson(response.getBody(), contractResponseType);
 
+        System.out.println(parsed.value().id());
     }
 
 
