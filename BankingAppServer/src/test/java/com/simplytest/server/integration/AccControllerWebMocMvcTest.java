@@ -1,9 +1,12 @@
 package com.simplytest.server.integration;
 
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.simplytest.server.api.ContractController;
 import com.simplytest.server.auth.JWT;
 import com.simplytest.server.model.DBContract;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +41,15 @@ public class AccControllerWebMocMvcTest {
     @Test
     public void getBalanceTest() throws Exception {
         // Test für die Balance-Abfrage
-        mockMvc.perform(get("/api/accounts/1/balance")
+        var response = mockMvc.perform(get("/api/accounts/1/balance")
                         .header(HttpHeaders.AUTHORIZATION, jwtToken)
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8));
+
+        System.out.println(response.andReturn().getResponse().getContentAsString());
+        JsonObject jsonObject = new Gson().fromJson(response.andReturn().getResponse().getContentAsString(), JsonObject.class);
+        double balance = jsonObject.get("result").getAsDouble();
+        Assertions.assertTrue(balance > 0);
     }
 }
