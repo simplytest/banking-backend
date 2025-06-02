@@ -54,7 +54,7 @@ public class BankingServer
     {
         var response = new MockHttpServletResponse();
 
-        controller.registerContract(createDemoUser("demo", "demo"), 1000.0,
+        controller.registerContract(createDemoUser("demo", "demo"), Double.valueOf(1000.0),
                 response);
 
         if (System.getenv("SIMPLYTEST_DEMO") == null)
@@ -63,14 +63,14 @@ public class BankingServer
         }
 
         var john = createDemoUser("John", "123");
-        var result = controller.registerContract(john, 0.0, response);
+        var result = controller.registerContract(john, Double.valueOf(0.0), response);
         controller.addAccount(result.value().JWT(), AccountType.FixedRateAccount,
                 response);
 
-        controller.registerContract(createDemoUser("Amanda", "123"), 0.0, response);
+        controller.registerContract(createDemoUser("Amanda", "123"), Double.valueOf(0.0), response);
 
         var max = createDemoUser("Max", "demo");
-        var contractMax = controller.registerContract(max, 1000.0, response);
+        var contractMax = controller.registerContract(max, Double.valueOf(1000.0), response);
 
         controller.addAccount(contractMax.value().JWT(), AccountType.OnCallAccount,
                 response).second().receiveMoney(500);
