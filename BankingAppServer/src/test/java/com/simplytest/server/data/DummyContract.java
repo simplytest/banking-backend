@@ -29,7 +29,7 @@ public class DummyContract {
                       }
                     }
                   },
-                  "passwordHash": "$2a$12$YkHRZthCXrh/OoXy7QG1suKccQ6pkIh8UlStfWPpbouqOVD0UcEyK",
+                  "passwordHash": "$2a$12$d1fqX6dD8JERo1evQdq5au277DvlzZh6MBTUk/Hdq40KvChscF6MS",
                   "accounts": [
                     [
                       {
