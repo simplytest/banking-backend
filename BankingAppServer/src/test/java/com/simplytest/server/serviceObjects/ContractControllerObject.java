@@ -4,8 +4,11 @@ import com.google.gson.reflect.TypeToken;
 import com.simplytest.core.customers.Customer;
 import com.simplytest.server.apiData.ContractRegistrationResult;
 import com.simplytest.server.apiData.CustomerData;
+import com.simplytest.server.data.DummyContract;
 import com.simplytest.server.data.DummyCustomer;
 import com.simplytest.server.json.Json;
+import com.simplytest.server.model.DBContract;
+import com.simplytest.server.repo.ContractRepository;
 import com.simplytest.server.utils.Result;
 import org.junit.jupiter.api.Assertions;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -46,5 +49,17 @@ public class ContractControllerObject {
         System.out.println(parsed.value().JWT());
         String jwtToken = parsed.value().JWT();
         return jwtToken;
+    }
+
+    public DBContract createDefaultCustomerInDB(ContractRepository contractRepository) {
+        var dummyContract = new DummyContract();
+        return contractRepository.save(new DBContract(dummyContract.createDummyContract()));
+    }
+
+    public DBContract createCustomerInDB(ContractRepository contractRepository, String firstName, String lastName) {
+        var dummyContract = new DummyContract();
+        var contract = dummyContract.createDummyContract();
+        contract = dummyContract.changeCustomerData(contract, firstName, lastName);
+        return contractRepository.save(new DBContract(contract));
     }
 }
