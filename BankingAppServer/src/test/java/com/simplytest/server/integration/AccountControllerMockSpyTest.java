@@ -3,8 +3,6 @@ package com.simplytest.server.integration;
 import com.google.common.reflect.TypeToken;
 import com.simplytest.core.Error;
 import com.simplytest.core.Id;
-import com.simplytest.server.api.ContractController;
-import com.simplytest.server.apiData.ContractRegistrationResult;
 import com.simplytest.server.apiData.Iban;
 import com.simplytest.server.apiData.SendMoney;
 import com.simplytest.server.auth.JWT;
@@ -24,24 +22,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
 import java.lang.reflect.Type;
 import java.util.Locale;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class AccountControllerMockTest {
+public class AccountControllerMockSpyTest {
     @Autowired
     TestRestTemplate restTemplate;
-    @MockitoBean
+    @MockitoSpyBean
     ContractRepository contractRepository;
-
-    @MockitoBean
-    private ContractController controller;
 
     private String jwtToken;
     final double initialGiroBalance = 1000.00;
@@ -56,9 +50,6 @@ public class AccountControllerMockTest {
         myDBContract = new DBContract(dummyContrac.createDummyWithRE());
 
         when(contractRepository.findById(anId)).thenReturn(Optional.of(myDBContract));
-        when(contractRepository.save(myDBContract)).thenReturn(myDBContract);
-        when(controller.registerContract(any(), any(), any()))
-                .thenReturn(new Result<>(Optional.of(new ContractRegistrationResult(anId, jwtToken)), Optional.empty()));
 
         header.set(HttpHeaders.AUTHORIZATION, jwtToken);
         header.setContentType(MediaType.APPLICATION_JSON);
@@ -75,7 +66,7 @@ public class AccountControllerMockTest {
 
     @Test
     public void getAccountBalanceMock() {
-        String url = "/api/accounts/7/balance";
+        String url = "/api/accounts/1/balance";
         var header = new HttpHeaders();
         header.set(HttpHeaders.AUTHORIZATION, jwtToken);
 
@@ -85,9 +76,9 @@ public class AccountControllerMockTest {
         Type typeGetAccBalance = new TypeToken<Result<Double, String>>() {
         }.getType();
         System.out.println(response.getBody());
-//        var balanceRespone = (Result<Double, String>) Json.get().fromJson(response.getBody(), typeGetAccBalance);
-        Assertions.assertEquals(HttpStatusCode.valueOf(404), response.getStatusCode());
-//        Assertions.assertEquals(1000.0, balanceRespone.value());
+        var balanceRespone = (Result<Double, String>) Json.get().fromJson(response.getBody(), typeGetAccBalance);
+        //Assertions.assertEquals(HttpStatusCode.valueOf(404), response.getStatusCode());
+        Assertions.assertEquals(1000.0, balanceRespone.value());
     }
 
     // receive Money
@@ -107,9 +98,9 @@ public class AccountControllerMockTest {
         //when(contractRepository.save(myDBContract)).thenReturn(myDBContract);
         var responseReceive = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
         System.out.println(responseReceive.getBody());
-        Type typeGetAccReceive = new TypeToken<Result<Boolean, Error>>() {
+        Type typeGetAccReceive = new TypeToken<Result<Boolean, com.simplytest.core.Error>>() {
         }.getType();
-        var receiveRespone = (Result<Boolean, Error>) Json.get().fromJson(responseReceive.getBody(), typeGetAccReceive);
+        var receiveRespone = (Result<Boolean, com.simplytest.core.Error>) Json.get().fromJson(responseReceive.getBody(), typeGetAccReceive);
         Assertions.assertEquals(HttpStatusCode.valueOf(200), responseReceive.getStatusCode());
         Assertions.assertEquals(true, receiveRespone.value());
 
@@ -129,9 +120,9 @@ public class AccountControllerMockTest {
 
         var responseReceive = restTemplate.exchange(url, HttpMethod.POST, entity, String.class);
         System.out.println(responseReceive.getBody());
-        Type typeGetAccReceive = new TypeToken<Result<Boolean, Error>>() {
+        Type typeGetAccReceive = new TypeToken<Result<Boolean, com.simplytest.core.Error>>() {
         }.getType();
-        var receiveRespone = (Result<Boolean, Error>) Json.get().fromJson(responseReceive.getBody(), typeGetAccReceive);
+        var receiveRespone = (Result<Boolean, com.simplytest.core.Error>) Json.get().fromJson(responseReceive.getBody(), typeGetAccReceive);
         Assertions.assertEquals(HttpStatusCode.valueOf(200), responseReceive.getStatusCode());
         Assertions.assertEquals(true, receiveRespone.value());
     }
