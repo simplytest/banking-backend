@@ -2,6 +2,12 @@ package com.simplytest.server.api;
 
 import java.util.HashMap;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.ValidationException;
 import org.iban4j.IbanUtil;
@@ -85,6 +91,12 @@ public class AccountController
         });
     }
 
+    @Operation(summary = "Get current balance", description = "Returns the current balance of the specified account.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "404", description = "Account not found")
+    })
     @ResponseBody
     @GetMapping(path = "{accountId}/balance")
     public Result<Double, Error> getCurrentBalance(
@@ -105,6 +117,12 @@ public class AccountController
         return Result.success(account.getBalance());
     }
 
+    @Operation(summary = "Receive money", description = "Adds the specified amount to the account balance.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
     @GetMapping(path = "{accountId}/receive")
     public Result<Boolean, Error> receiveMoney(
@@ -137,6 +155,12 @@ public class AccountController
         }
     }
 
+    @Operation(summary = "Send money", description = "Sends the specified amount to the target account.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
     @PostMapping(path = "{accountId}/send")
     public Result<Boolean, Error> sendMoney(
@@ -180,7 +204,12 @@ public class AccountController
 
     @Value("${validationurl}")
     String validationurl;
-
+    @Operation(summary = "Send money externally", description = "Sends the specified amount to an external account after validating the IBAN.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
     @PostMapping(path = "{accountId}/sendexternal")
     public Result<Boolean, Error> sendMoneyExternal(
@@ -231,7 +260,12 @@ public class AccountController
         }
     }
 
-
+    @Operation(summary = "Transfer money", description = "Transfers the specified amount from one account to another within the same parent.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class), examples = @ExampleObject(value = "{\"success\": true}"))),
+            @ApiResponse(responseCode = "403", description = "Forbidden", content = @Content(schema = @Schema(implementation = Error.class), examples = @ExampleObject(value = "{\"error\": \"Forbidden\"}"))),
+            @ApiResponse(responseCode = "400", description = "Bad request", content = @Content(schema = @Schema(implementation = Error.class), examples = @ExampleObject(value = "{\"error\": \"Bad request\"}")))
+    })
     @ResponseBody
     @PostMapping(path = "{accountId}/transfer")
     public Result<Boolean, Error> transferMoney(

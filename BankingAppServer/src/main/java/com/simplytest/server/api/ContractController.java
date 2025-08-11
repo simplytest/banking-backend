@@ -5,6 +5,10 @@ import java.util.Map;
 import com.simplytest.core.accounts.AccountType;
 import com.simplytest.core.contracts.Contract;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -68,12 +72,13 @@ public class ContractController
         });
     }
 
+    @Operation(summary = "Login", description = "Authenticates a contract using the provided password and returns a JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
     @PostMapping(path = "login/{id}")
-    @Operation(
-            summary = "Öffentlicher Endpoint, kein Login nötig",
-            security = {} // <- Leeres Array entfernt global gesetzte Security-Anforderung
-    )
     public Result<String, Error> login(@PathVariable long id,
             @RequestBody String password, HttpServletResponse response)
     {
@@ -88,12 +93,13 @@ public class ContractController
         return Result.success(JWT.generate(contract.value().getId()));
     }
 
+    @Operation(summary = "Register Contract", description = "Registers a new contract with the provided customer data and optional initial balance.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Contract created", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
     @PostMapping()
-    @Operation(
-            summary = "Öffentlicher Endpoint, kein Login nötig",
-            security = {} // <- Leeres Array entfernt global gesetzte Security-Anforderung
-    )
     public Result<ContractRegistrationResult, Error> registerContract(
             @RequestBody @Valid CustomerData data,
             @RequestParam(required = false) Double initialBalance,
@@ -144,9 +150,11 @@ public class ContractController
         return Result.success(result);
     }
 
-    @Operation(
-            summary = "Gibt den Contract zurück"
-    )
+    @Operation(summary = "Get Contract", description = "Returns the contract associated with the provided JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Contract.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @ResponseBody
     @GetMapping()
     public Contract getContract(
@@ -164,6 +172,12 @@ public class ContractController
         return findContract(parsedToken.get()).value();
     }
 
+    @Operation(summary = "Dismiss Contract", description = "Dismisses the contract associated with the provided JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
     @DeleteMapping()
     public Result<Boolean, Error> dismissContract(
@@ -200,8 +214,14 @@ public class ContractController
         return Result.success();
     }
 
-    @PutMapping(path = "dispo/{amount}")
+    @Operation(summary = "Change Dispo Limit", description = "Changes the dispo limit for the contract associated with the provided JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
+    @PutMapping(path = "dispo/{amount}")
     public Result<Boolean, Error> changeDispoLimit(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
             @PathVariable(required = true) Double amount,
@@ -229,8 +249,14 @@ public class ContractController
         }
     }
 
-    @PutMapping(path = "sendLimit/{amount}")
+    @Operation(summary = "Change Send Limit", description = "Changes the send limit for the contract associated with the provided JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
+    @PutMapping(path = "sendLimit/{amount}")
     public Result<Boolean, Error> changeSendLimit(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
             @PathVariable(required = true) Double amount,
@@ -258,6 +284,11 @@ public class ContractController
         }
     }
 
+    @Operation(summary = "Get Contract Accounts", description = "Returns the accounts associated with the contract provided by the JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Map.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @ResponseBody
     @GetMapping(path = "accounts")
     public Map<Id, IAccount> getContractAccounts(
@@ -276,6 +307,12 @@ public class ContractController
         return contract.getAccounts();
     }
 
+    @Operation(summary = "Add Account", description = "Adds a new account to the contract associated with the provided JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Account created", content = @Content(schema = @Schema(implementation = Pair.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(path = "accounts/{type}")
@@ -297,6 +334,12 @@ public class ContractController
         }
     }
 
+    @Operation(summary = "Add Real Estate Account", description = "Adds a new real estate account to the contract associated with the provided JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Account created", content = @Content(schema = @Schema(implementation = Pair.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
     @PostMapping(path = "accounts")
     public Pair<Id, IAccount> addRealEstateAccount(
@@ -318,8 +361,14 @@ public class ContractController
         }
     }
 
-    @DeleteMapping(path = "accounts/{accountId}")
+    @Operation(summary = "Close Account", description = "Closes the specified account associated with the provided JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Result.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @ResponseBody
+    @DeleteMapping(path = "accounts/{accountId}")
     public Result<Boolean, Error> closeAccount(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
             @PathVariable @Valid long accountId, HttpServletResponse response)
@@ -347,8 +396,13 @@ public class ContractController
         return Result.success();
     }
 
-    @GetMapping(path = "customer")
+    @Operation(summary = "Get Contract Customer", description = "Returns the customer associated with the contract provided by the JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Customer.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @ResponseBody
+    @GetMapping(path = "customer")
     public Customer getContractCustomer(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
             HttpServletResponse response)

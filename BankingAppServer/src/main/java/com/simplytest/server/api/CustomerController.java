@@ -1,6 +1,11 @@
 package com.simplytest.server.api;
 
 import com.simplytest.core.customers.Address;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -47,6 +52,11 @@ public class CustomerController
         });
     }
 
+    @Operation(summary = "Get Customer", description = "Returns the customer associated with the provided JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation", content = @Content(schema = @Schema(implementation = Customer.class))),
+            @ApiResponse(responseCode = "403", description = "Forbidden")
+    })
     @GetMapping()
     public Customer getCustomer(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
@@ -63,6 +73,12 @@ public class CustomerController
         return findCustomer(parsedToken.get()).value();
     }
 
+    @Operation(summary = "Change Customer Address", description = "Changes the address of the customer associated with the provided JWT token.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "403", description = "Forbidden"),
+            @ApiResponse(responseCode = "400", description = "Bad request")
+    })
     @PutMapping(path = "changeAddress")
     public void changeCustomerAddress(
             @RequestHeader(name = HttpHeaders.AUTHORIZATION) String token,
