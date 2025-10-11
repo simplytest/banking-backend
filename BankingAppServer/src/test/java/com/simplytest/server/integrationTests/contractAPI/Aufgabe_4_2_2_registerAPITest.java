@@ -54,9 +54,8 @@ public class Aufgabe_4_2_2_registerAPITest {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> entity = new HttpEntity<>(payload, headers);
 
-        var registerResponse = restTemplate.postForEntity(endPointUrl, entity, String.class);
+        var registerResponse = restTemplate.postForEntity(endPointUrl, new HttpEntity<>(payload, headers), String.class);
         System.out.println(registerResponse);
 
         Assertions.assertEquals(HttpStatus.CREATED, registerResponse.getStatusCode());
@@ -89,9 +88,9 @@ public class Aufgabe_4_2_2_registerAPITest {
         Assertions.assertEquals(HttpStatus.CREATED, registerResponse.getStatusCode());
 
         // deserialisiere die Antwort
-        final var responseType = TypeToken.getParameterized(Result.class, ContractRegistrationResult.class, Error.class);
+        final TypeToken<?> registerResponseType = new TypeToken<Result<ContractRegistrationResult, Error>>() {};
         @SuppressWarnings("unchecked")
-        Result<ContractRegistrationResult, Error> response = (Result<ContractRegistrationResult, Error>) Json.get().fromJson(registerResponse.getBody(), responseType);
+        Result<ContractRegistrationResult, Error> response = (Result<ContractRegistrationResult, Error>) Json.get().fromJson(registerResponse.getBody(), registerResponseType);
 
         // prüfe, dass im Ergebnis ein JWT Token enthalten ist
         Assertions.assertTrue(!response.value().JWT().isEmpty());
@@ -118,9 +117,9 @@ public class Aufgabe_4_2_2_registerAPITest {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, registerResponse.getStatusCode());
 
         // deserialisiere die Antwort
-        final var responseType = TypeToken.getParameterized(Result.class, ContractRegistrationResult.class, Error.class);
+        final TypeToken<?> registerResponseType = new TypeToken<Result<ContractRegistrationResult, Error>>() {};
         @SuppressWarnings("unchecked")
-        Result<ContractRegistrationResult, Error> response = (Result<ContractRegistrationResult, Error>) Json.get().fromJson(registerResponse.getBody(), responseType);
+        Result<ContractRegistrationResult, Error> response = (Result<ContractRegistrationResult, Error>) Json.get().fromJson(registerResponse.getBody(), registerResponseType);
 
         // prüfe, dass im Ergebnis ein JWT Token enthalten ist
         Assertions.assertTrue(!response.error().error().toString().isEmpty());
