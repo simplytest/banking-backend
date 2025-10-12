@@ -1,11 +1,11 @@
 package com.simplytest.server.integrationTests.accountAPI;
 
+import com.github.tomakehurst.wiremock.client.WireMock;
 import com.google.gson.reflect.TypeToken;
 import com.simplytest.core.Id;
 import com.simplytest.core.accounts.AccountType;
 import com.simplytest.core.contracts.Contract;
 import com.simplytest.server.api.ContractController;
-import com.simplytest.server.apiData.ContractRegistrationResult;
 import com.simplytest.server.apiData.Iban;
 import com.simplytest.server.apiData.SendMoney;
 import com.simplytest.server.auth.JWT;
@@ -21,18 +21,23 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.wiremock.spring.ConfigureWireMock;
+import org.wiremock.spring.EnableWireMock;
 
 import java.util.Locale;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class Aufgabe_5_3_retrieveBalanceAPI_DBMock_Test {
+@EnableWireMock(@ConfigureWireMock(portProperties = "localhost", port = 8081))
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+                properties = {"validationurl = http://localhost:8081"})
+public class Aufgabe_5_4_sendMoneyAPI_WireMock_Test {
 
     @Autowired
     private TestRestTemplate restTemplate;
@@ -74,7 +79,9 @@ public class Aufgabe_5_3_retrieveBalanceAPI_DBMock_Test {
         //        .thenReturn(new Result<>(Optional.of(new ContractRegistrationResult(contractID, jwtToken)), Optional.empty()));
     }
 
+
     @Test
+    @DisplayName("Kontostand abfragen mit gemockter DB")
     public void getBalanceFromMockedDBTest() {
 
         long accountID = dbContract.value().getAccounts().entrySet().stream().filter(x -> x.getValue().getType() == AccountType.GiroAccount).findFirst().get().getKey().child();
@@ -98,59 +105,37 @@ public class Aufgabe_5_3_retrieveBalanceAPI_DBMock_Test {
     }
 
 
-    @Test
-    @DisplayName("Geld erhalten und Kontostand prüfen")
-    public void recieveMoneyFromMockedDBTest() {
-
-        var amountReceived = 300.0;
-        long accountID = dbContract.value().getAccounts().entrySet().stream().filter(x -> x.getValue().getType() == AccountType.GiroAccount).findFirst().get().getKey().child();
-
-        // Mock muss mit aktualisiertem Kontostand neu registriert werden
-        Contract contract = dbContract.value();
-        contract.getAccount( new Id(contractID, accountID)).value().setBalance(initialBalance + amountReceived);
-        registerMocks(contract);
-
-        // Geld empfangen über API aufrufen
-        String url = String.format(Locale.US,"/api/accounts/%d/receive?amount=%02.2f", accountID, amountReceived);
-        var responseReceive = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(headers), String.class);
-        System.out.println("Receive response: " + responseReceive.getBody());
-
-        var receiveResult = Json.get().fromJson(responseReceive.getBody(), new TypeToken<Result<Boolean, Error>>() {});
-        Assertions.assertEquals(HttpStatusCode.valueOf(200), responseReceive.getStatusCode());
-        Assertions.assertEquals(true, receiveResult.value());
-
-
-        double balance = getBalanceForAccount(accountID);
-        Assertions.assertEquals(initialBalance + amountReceived, balance);
-
-    }
 
 
     @Test
-    @DisplayName("Geld senden und Kontostand prüfen")
-    public void sendMoneyFromMockedDBTest() {
+    @DisplayName("Geld mit gemockter IBAN Prüfung senden")
+    public void sendMoneyWithWireMockTest() {
 
         long accountID = dbContract.value().getAccounts().entrySet().stream().filter(x -> x.getValue().getType() == AccountType.GiroAccount).findFirst().get().getKey().child();
         SendMoney sendPayload = new SendMoney( new Iban("DE45120300000000202053"), 250.0);
         // JSON Payload für die Geldüberweisung erstellen, da SendMoney nicht korrekt über SpringBoot serialisiert wird
         String body = Json.get().toJson(sendPayload);
 
+        // WireMock konfigurieren, um die IBAN-Validierung zu simulieren
+        WireMock.stubFor(WireMock.get("/validator/validate?iban=" + sendPayload.target().raw()).willReturn(WireMock.ok()));
+
         // Mock muss mit aktualisiertem Kontostand neu registriert werden
         Contract contract = dbContract.value();
         contract.getAccount( new Id(contractID, accountID)).value().setBalance(initialBalance - sendPayload.amount());
         registerMocks(contract);
 
+
         // Geldüberweisung an externe IBAN über API aufrufen
-        String url = String.format(Locale.US,"/api/accounts/%d/send", accountID);
+        String url = String.format(Locale.US,"/api/accounts/%d/sendexternal", accountID);
         var responseSend = restTemplate.exchange(url, HttpMethod.POST, new HttpEntity<>(body, headers), String.class);
         System.out.println("Send response: " + responseSend.getBody());
 
-        // Antwort prüfen
+        // Prüfen, dass die Überweisung erfolgreich war
         var sendResult = Json.get().fromJson(responseSend.getBody(), new TypeToken<Result<Boolean, Error>>() {});
         Assertions.assertEquals(HttpStatusCode.valueOf(200), responseSend.getStatusCode());
         Assertions.assertEquals(true, sendResult.value());
 
-        // Kontostand prüfen
+        // Kontostand erneut abfragen
         double balance = getBalanceForAccount(accountID);
         Assertions.assertEquals(initialBalance - sendPayload.amount(), balance);
 
