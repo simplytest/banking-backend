@@ -12,7 +12,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class Aufgabe_4_2_1_loginAPITest {
+public class Aufgabe_4_2_1_loginAPI_Test {
 
     final private String BASE_URL = "/api/contracts";
     final private String LOGIN_URL = BASE_URL + "/login";

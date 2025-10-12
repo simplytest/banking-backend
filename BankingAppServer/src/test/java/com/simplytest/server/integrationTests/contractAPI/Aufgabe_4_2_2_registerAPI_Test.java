@@ -18,10 +18,9 @@ import com.simplytest.core.Error;
 import org.springframework.http.MediaType;
 
 import java.time.Year;
-import java.time.temporal.TemporalAmount;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class Aufgabe_4_2_2_registerAPITest {
+public class Aufgabe_4_2_2_registerAPI_Test {
 
     final private String BASE_URL = "/api/contracts";
 

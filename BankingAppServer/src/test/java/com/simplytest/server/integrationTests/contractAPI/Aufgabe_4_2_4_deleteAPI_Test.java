@@ -2,9 +2,7 @@ package com.simplytest.server.integrationTests.contractAPI;
 
 import com.google.gson.reflect.TypeToken;
 import com.simplytest.core.Error;
-import com.simplytest.core.contracts.Contract;
-import com.simplytest.server.BankingServer;
-import com.simplytest.server.apiData.ContractRegistrationResult;
+import com.simplytest.server.integrationTests.utils.ContractUtils;
 import com.simplytest.server.json.Json;
 import com.simplytest.server.utils.Result;
 import org.junit.jupiter.api.Assertions;
@@ -14,10 +12,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
-import static com.simplytest.server.integrationTests.contractAPI.Aufgabe_4_2_3_retrieveAPITest.registerNewCustomer;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public class Aufgabe_4_2_4_deleteAPITest {
+public class Aufgabe_4_2_4_deleteAPI_Test {
 
     static final private String BASE_URL = "/api/contracts";
 
@@ -25,14 +22,10 @@ public class Aufgabe_4_2_4_deleteAPITest {
     private TestRestTemplate restTemplate;
 
 
-
-    public record RegisterResponse(String jwtToken, long contractId) {}
-
-
     @Test
     public void deleteContractTest() {
         String endPointUrl = BASE_URL;
-        var result = registerNewCustomer(restTemplate, "SpringTest", "password");
+        var result = ContractUtils.registerNewCustomer(restTemplate, "SpringTest", "password");
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
