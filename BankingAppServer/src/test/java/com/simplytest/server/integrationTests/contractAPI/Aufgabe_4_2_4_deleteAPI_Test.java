@@ -35,9 +35,8 @@ public class Aufgabe_4_2_4_deleteAPI_Test {
         Assertions.assertEquals(HttpStatus.OK, contractDeleteResponse.getStatusCode());
         System.out.println(contractDeleteResponse.getBody());
 
-        final TypeToken<?> deleteResponseType = new TypeToken<Result<Boolean, Error>>() {};
-        @SuppressWarnings("unchecked")
-        var response = (Result<Boolean, Error>) Json.get().fromJson(contractDeleteResponse.getBody(), deleteResponseType);
+        final TypeToken<Result<Boolean, Error>> deleteResponseType = new TypeToken<>() {};
+        var response = Json.get().fromJson(contractDeleteResponse.getBody(), deleteResponseType);
 
         Assertions.assertTrue(response.successful());
         Assertions.assertEquals("true", response.value().toString());

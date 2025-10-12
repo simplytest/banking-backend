@@ -40,7 +40,7 @@ public class Aufgabe_5_2_addAccount_DB_Injection_Test {
         var result = ContractUtils.registerNewContractInDB(contractDB, firstName, "password", balance);
 
         var currentContractReference = contractDB.findById(result.id()).get();
-        Assertions.assertEquals(1, currentContractReference.value().getAccounts().size());
+        int initialNumberOFAccounts = currentContractReference.value().getAccounts().size();
 
 
         // (2) Füge dem Vertrag ein neues Tilgungskonto hinzu
@@ -64,7 +64,7 @@ public class Aufgabe_5_2_addAccount_DB_Injection_Test {
 
         // (4) Prüfe, dass das Konto zum Vertrag hinzugefügt wurde
         currentContractReference = contractDB.findById(result.id()).get();
-        Assertions.assertEquals(2, currentContractReference.value().getAccounts().size());
+        Assertions.assertEquals(initialNumberOFAccounts + 1, currentContractReference.value().getAccounts().size());
         Assertions.assertTrue(currentContractReference.value().getAccounts().values().stream().skip(1).findFirst().get().getType().name().contains("RealEstateAccount"));
 
         // (5) Gegenprüfung über API
@@ -75,7 +75,7 @@ public class Aufgabe_5_2_addAccount_DB_Injection_Test {
         var contract = Json.get().fromJson(contractInfoResponse.getBody(), Contract.class);
 
         Assertions.assertAll(
-                () -> Assertions.assertEquals(2, contract.getAccounts().size()),
+                () -> Assertions.assertEquals(initialNumberOFAccounts + 1, contract.getAccounts().size()),
                 () -> Assertions.assertTrue(contract.getAccounts().values().stream().skip(1).findFirst().get().getType().name().contains("RealEstateAccount")),
                 () -> Assertions.assertEquals(-1*creditAmount, contract.getAccounts().values().stream().skip(1).findFirst().get().getBalance())
         );

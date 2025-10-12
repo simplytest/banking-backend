@@ -87,9 +87,8 @@ public class Aufgabe_4_2_2_registerAPI_Test {
         Assertions.assertEquals(HttpStatus.CREATED, registerResponse.getStatusCode());
 
         // deserialisiere die Antwort
-        final TypeToken<?> registerResponseType = new TypeToken<Result<ContractRegistrationResult, Error>>() {};
-        @SuppressWarnings("unchecked")
-        Result<ContractRegistrationResult, Error> response = (Result<ContractRegistrationResult, Error>) Json.get().fromJson(registerResponse.getBody(), registerResponseType);
+        final TypeToken<Result<ContractRegistrationResult, Error>> registerResponseType = new TypeToken<>() {};
+        Result<ContractRegistrationResult, Error> response = Json.get().fromJson(registerResponse.getBody(), registerResponseType);
 
         // prüfe, dass im Ergebnis ein JWT Token enthalten ist
         Assertions.assertTrue(!response.value().JWT().isEmpty());
@@ -116,9 +115,8 @@ public class Aufgabe_4_2_2_registerAPI_Test {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, registerResponse.getStatusCode());
 
         // deserialisiere die Antwort
-        final TypeToken<?> registerResponseType = new TypeToken<Result<ContractRegistrationResult, Error>>() {};
-        @SuppressWarnings("unchecked")
-        Result<ContractRegistrationResult, Error> response = (Result<ContractRegistrationResult, Error>) Json.get().fromJson(registerResponse.getBody(), registerResponseType);
+        final TypeToken<Result<ContractRegistrationResult, Error>> registerResponseType = new TypeToken<>() {};
+        Result<ContractRegistrationResult, Error> response = Json.get().fromJson(registerResponse.getBody(), registerResponseType);
 
         // prüfe, dass im Ergebnis ein JWT Token enthalten ist
         Assertions.assertTrue(!response.error().error().toString().isEmpty());
