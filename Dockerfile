@@ -2,7 +2,7 @@ FROM fedora:38
 
 # Build dependencies
 
-RUN dnf install -y java-17-openjdk maven
+RUN dnf install -y java-21-openjdk maven
 
 # Build Server
 
