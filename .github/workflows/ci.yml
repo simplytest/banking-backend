@@ -25,10 +25,9 @@ jobs:
           java -version
           echo "JAVA_HOME is $JAVA_HOME"
           mvn -version
-
       
       - name: 📥 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v6
 
       - name: 🛠️ Checkout Workaround
         # The Checkout GitHub action has problems when running inside of a docker container (as we do).
@@ -47,13 +46,13 @@ jobs:
 
       - name: 🔍 Check for duplicate reports
         id: skip_check
-        uses: fkirc/skip-duplicate-actions@v5
+        uses: fkirc/skip-duplicate-actions@f75f66ce1886f00957d99748a42c724f4330bdcf
         with:
           skip_after_successful_duplicate: true
           concurrent_skipping: "same_content_newer"
 
       - name: 📋 Unit Test Report
-        uses: phoenix-actions/test-reporting@v8
+        uses: phoenix-actions/test-reporting@f957cd93fc2d848d556fa0d03c57bc79127b6b5e
         if: steps.skip_check.outputs.should_skip != 'true' && (success() || failure())
         with:
           name: 📋 Unit Test Report
@@ -61,7 +60,7 @@ jobs:
           path: "**/*CucumberUnitTest.xml"
 
       - name: 📋 Integration Test Report
-        uses: phoenix-actions/test-reporting@v8
+        uses: phoenix-actions/test-reporting@f957cd93fc2d848d556fa0d03c57bc79127b6b5e
         if: steps.skip_check.outputs.should_skip != 'true' && (success() || failure())
         with:
           name: 📋 Integration Test Report
