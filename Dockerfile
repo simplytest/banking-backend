@@ -1,8 +1,4 @@
-FROM fedora:38
-
-# Build dependencies
-
-RUN dnf install -y java-21-openjdk maven
+FROM maven:3-eclipse-temurin-21
 
 # Build Server
 
