@@ -4,10 +4,10 @@ FROM maven:3-eclipse-temurin-21
 
 ADD . / ./
 RUN mvn -U clean install
-RUN cd BankingAppServer && mvn clean compile assembly:single
 
 # Set Entrypoint
 
-ENTRYPOINT java -jar BankingAppServer/target/SimplyTest-BankingServer.jar
+WORKDIR BankingAppServer
+ENTRYPOINT mvn spring-boot:run 
 
 EXPOSE 5005
