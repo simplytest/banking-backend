@@ -1,6 +1,7 @@
-package com.simplytest.server.intefrationTests.contractAPI;
+package com.simplytest.server.integrationTests.contractAPI;
 
 import java.time.Year;
+import java.util.Calendar;
 
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -13,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 
+import com.simplytest.core.Error;
 import com.simplytest.server.BankingServer;
 import com.simplytest.server.apiData.ContractRegistrationResult;
 import org.springframework.http.HttpHeaders;
@@ -107,7 +109,10 @@ public class Aufgabe_4_2_2_registerAPI_Test {
         String endPointUrl = BASE_URL + "?initialBalance=" + "500";
 
         final var newCustomer = BankingServer.createDemoUser("SpringTest", "password");
-        newCustomer.birthDay.setYear (Year.now().getValue());
+        var cal = Calendar.getInstance();
+        cal.setTime(newCustomer.birthDay);
+        cal.set(Calendar.YEAR, Year.now().getValue());
+        newCustomer.birthDay = cal.getTime();
 
         var registerResponse = restTemplate.postForEntity(endPointUrl, newCustomer, String.class);
         System.out.println(registerResponse);
@@ -115,8 +120,8 @@ public class Aufgabe_4_2_2_registerAPI_Test {
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, registerResponse.getStatusCode());
 
         // deserialisiere die Antwort
-        final TypeToken<Result<ContractRegistrationResult, com.simplytest.server.Error>> registerResponseType = new TypeToken<>() {};
-        Result<ContractRegistrationResult, com.simplytest.server.Error> response = Json.get().fromJson(registerResponse.getBody(), registerResponseType);
+        final TypeToken<Result<ContractRegistrationResult, Error>> registerResponseType = new TypeToken<>() {};
+        Result<ContractRegistrationResult, Error> response = Json.get().fromJson(registerResponse.getBody(), registerResponseType);
 
         // prüfe, dass im Ergebnis ein JWT Token enthalten ist
         Assertions.assertTrue(!response.error().error().toString().isEmpty());

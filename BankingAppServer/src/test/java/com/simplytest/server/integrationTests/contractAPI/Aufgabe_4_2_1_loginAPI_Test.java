@@ -1,4 +1,4 @@
-package com.simplytest.server.intefrationTests.contractAPI;
+package com.simplytest.server.integrationTests.contractAPI;
 
 import com.google.gson.JsonObject;
 import com.simplytest.core.Error;
