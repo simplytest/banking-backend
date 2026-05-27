@@ -1,53 +1,122 @@
 # Upgrade Plan: banking-backend (20260527161921)
 
-- **Generated**: 27. Mai 2026, 18:30
-- **HEAD Branch**: modernize/java-20260527181653
-- **HEAD Commit ID**: 626056e16e4388c8912d376f90c4d8303707e9bd
-
----
+- **Generated**: 2026-05-27 19:55:38
+- **HEAD Branch**: modernize/java-20260527195304
+- **HEAD Commit ID**: ea5e82de06f6f1807fc691708ad8dbcb6cb3269e
 
 ## Available Tools
 
 **JDKs**
-- JDK 21.0.6: `/Users/philippe/Library/Java/JavaVirtualMachines/temurin-21.0.6/Contents/Home/bin` (current project JDK, used by Step 2 Baseline)
-- JDK 25: **<TO_BE_INSTALLED>** (required by Steps 4 and 5)
+- JDK 25.0.2: /Users/philippe/.jdk/jdk-25.0.2/jdk-25.0.2+10/Contents/Home/bin (current project JDK, used by all steps)
 
 **Build Tools**
-- Maven 3.9.9: `/opt/homebrew/Cellar/maven/3.9.9/bin` (available via Homebrew/PATH; no Maven wrapper present)
-
-> Note: Maven 3.9.9 is sufficient for Java 25. No wrapper upgrade required (no `mvnw` present).
-
----
+- Maven 3.9.9: /opt/homebrew/Cellar/maven/3.9.9/bin (compatible with Java 25)
 
 ## Guidelines
 
-> Note: You can add any specific guidelines or constraints for the upgrade process here if needed, bullet points are preferred.
-
----
+> Your project is already configured at cutting-edge versions (Java 25, Spring Boot 4.0.6). This upgrade focuses on ensuring all dependencies are at their latest compatible patch versions and verifying full compilation and test success.
 
 ## Options
 
-- Working branch: modernize/java-20260527181653
+- Working branch: modernize/java-20260527195304
 - Run tests before and after the upgrade: true
-
----
 
 ## Upgrade Goals
 
-- **Java**: 21 → **25** (latest LTS, released September 2025)
-- **Spring Boot**: 3.5.6 → **4.0.6** (latest GA, released 2025/2026)
-
----
+- **Java**: 25 (current: 25) — Keep latest
+- **Spring Boot**: 4.0.6 (current: 4.0.6) — Ensure latest 4.0.x patch
 
 ## Technology Stack
 
-| Technology/Dependency              | Current           | Min Compatible | Why Incompatible                                                                      |
-| ---------------------------------- | ----------------- | -------------- | ------------------------------------------------------------------------------------- |
-| Java                               | 21                | 25             | User requested                                                                        |
-| Spring Boot (BOM import)           | 3.5.6             | 4.0.6          | User requested; Spring Boot 4.0 is based on Spring Framework 7 + Jakarta EE 11       |
-| Spring Framework                   | 6.2.x (via SB)    | 7.0.x          | Transitively required by Spring Boot 4.0                                              |
-| JUnit BOM                          | 5.10.1 (explicit) | 6.1.0          | Spring Framework 7.0 sets JUnit 6 as minimum baseline                                |
-| Cucumber BOM                       | 7.14.0 (explicit) | 7.34.3         | Align with latest Cucumber 7.x; Spring Boot 4.0 BOM does not manage Cucumber          |
+| Technology/Dependency | Current | Latest Compatible | Status |
+|---|---|---|---|
+| Java | 25 | 25 | ✅ Current |
+| Spring Boot | 4.0.6 | 4.0.6 | ✅ Current |
+| Maven | 3.9.9 | 3.9.9 | ✅ Current |
+| maven-compiler-plugin | 3.14.0 | 3.14.0 | ✅ Current |
+| maven-surefire-plugin | 3.5.3 | 3.5.3 | ✅ Current |
+| JUnit BOM | 6.1.0 | 6.1.0 | ✅ Current |
+| Cucumber BOM | 7.34.3 | 7.34.3 | ✅ Current |
+| springdoc-openapi-starter-webmvc-ui | 3.0.3 | 3.0.3 | ✅ Current |
+| org.json | 20231013 | 20240303+ | ⚠️ Outdated |
+| gson | 2.10.1 | 2.10.1 | ✅ Current |
+| jjwt | 0.12.5 | 0.12.5 | ✅ Current |
+| slf4j-api | 2.0.17 | 2.0.17+ | ⚠️ Check compatibility |
+| httpclient5 | (managed by SB) | (managed by SB) | ✅ Current |
+| Allure | 2.35.1 | 2.35.1 | ✅ Current |
+| iban4j | 3.2.6-RELEASE | 3.2.6-RELEASE | ✅ Current |
+| bcrypt | 0.10.2 | 0.10.2 | ✅ Current |
+| wiremock-spring-boot | 4.2.1 | 4.2.1 | ✅ Current |
+| h2 (test database) | (managed by SB) | (managed by SB) | ✅ Current |
+
+## Derived Upgrades
+
+1. **Ensure Java 25 runtime compatibility**: Maven must be configured to use Java 25.0.2 compiler; no breaking changes expected as Spring Boot 4.0.6 fully supports Java 25.
+2. **Verify Docker image alignment**: Dockerfile already uses Java 25, ensure consistency during build.
+3. **Dependency patch updates**: Update org.json and verify slf4j compatibility if newer versions available.
+
+## Impact Analysis
+
+### Subsection: Dependency Changes
+
+No critical dependency changes required. The project is already at latest stable versions. Verification steps will ensure all dependencies compile and test correctly with Java 25.
+
+| File | Dependency | Current | Action | Target | Reason |
+|---|---|---|---|---|---|
+| pom.xml (root) | maven.compiler.source/target | 25 | verify | 25 | Confirm Java 25 is set |
+| BankingAppServer/pom.xml | spring.boot.version | 4.0.6 | verify | 4.0.6 | Latest Spring Boot 4.0.x |
+| BankingAppCore/pom.xml | org.json (test scope) | 20231013 | upgrade | 20240303+ | Latest stable org.json |
+
+### Subsection: Source Code Changes
+
+No source code changes required. Spring Boot 4.0.6 is fully compatible with Java 25; no deprecated API usage detected in initial scan.
+
+### Subsection: Configuration Changes
+
+No configuration changes required. Current `application.properties`/`application.yml` settings are compatible with Spring Boot 4.0.6 and Java 25.
+
+### Subsection: CI/CD Changes
+
+| File | Location | Current | Required Change |
+|---|---|---|---|
+| Dockerfile | line 1 | eclipse-temurin:25-jdk-noble | No change (already using Java 25) |
+| Dockerfile | lines 7-8 | Build command uses system Maven | No change (system Maven 3.9.9 is compatible) |
+
+### Subsection: Risks & Warnings
+
+- **Java 25 compiler requirement**: Maven MUST be configured to use Java 25.0.2 compiler. If system JAVA_HOME points to Java 23 or lower, compilation will fail with "Invalid target release: 25". **Mitigation**: Explicitly set JAVA_HOME to Java 25.0.2 during all build steps.
+- **Module system behavior**: Java 25 has stronger encapsulation of internal APIs. The project uses standard APIs only; no JDK internal reflection detected, so no `--add-opens` workarounds needed.
+- **Test coverage**: Existing test suite should fully validate Java 25 compatibility. No test-infrastructure breaking changes expected.
+
+## Upgrade Steps
+
+- **Step 1: Setup Environment**
+  - **Rationale**: Ensure Java 25.0.2 is set as the active compiler; verify Maven 3.9.9 compatibility.
+  - **Changes to Make**: Set JAVA_HOME to Java 25.0.2; verify Maven can compile with Java 25 target.
+  - **Verification**: Command: `java -version && mvn --version`, JDK: Java 25.0.2, Expected Result: Both report Java 25 / Maven 3.9.9.
+
+- **Step 2: Setup Baseline**
+  - **Rationale**: Establish baseline compilation and test pass rate with Java 25 as control point for validation.
+  - **Changes to Make**: Full compilation and test run on current state.
+  - **Verification**: Command: `mvn clean test-compile -q && mvn clean test -q`, JDK: Java 25.0.2, Expected Result: Compilation SUCCESS, Tests: 100% pass.
+
+- **Step 3: Verify Spring Boot 4.0.6 Compatibility & Dependencies**
+  - **Rationale**: Confirm all Spring Boot 4.0.6 features and dependencies work as expected; update org.json to latest if newer version available.
+  - **Changes to Make**: Run full test suite with Spring Boot 4.0.6 on Java 25; verify classpath.
+  - **Verification**: Command: `mvn clean test -q`, JDK: Java 25.0.2, Expected Result: All tests pass; no deprecation warnings.
+
+- **Step 4: Final Validation**
+  - **Rationale**: Confirm all upgrade goals met, project is production-ready.
+  - **Changes to Make**: Full integration validation, Docker build test, final compilation.
+  - **Verification**: Command: `mvn clean verify && docker build -t banking-backend:latest .`, JDK: Java 25.0.2, Expected Result: BUILD SUCCESS, Docker image builds without errors.
+
+---
+
+**Notes**:
+- The project is already on cutting-edge, stable versions. No breaking changes anticipated.
+- All modules are set to Java 25 target and compile with `-parameters` flag (enables parameter name retention for reflection).
+- Ensure JAVA_HOME is set correctly before each build step; Maven will not automatically use Java 25.
+- CI/CD (Dockerfile) already uses correct Java 25 base image.
 | springdoc-openapi-starter-webmvc-ui | 2.7.0             | 3.0.3          | springdoc 2.x supports Spring Boot 3.x only; Spring Boot 4.x requires springdoc 3.x  |
 | wiremock-spring-boot               | 3.9.0             | 4.2.1          | wiremock-spring-boot 3.x targets Spring Boot 3.x; 4.x required for Spring Boot 4.0   |
 | allure-junit5                      | 2.24.0 / 2.27.0   | 2.35.1         | Align with latest Allure 2.x; version inconsistency between modules                   |
