@@ -13,7 +13,7 @@ import com.simplytest.server.model.DBContract;
 import com.simplytest.server.repo.ContractRepository;
 import com.simplytest.server.utils.Result;
 import org.junit.jupiter.api.Assertions;
-import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 
 import java.util.Locale;

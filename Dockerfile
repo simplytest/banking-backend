@@ -1,8 +1,8 @@
-FROM fedora:38
+FROM eclipse-temurin:25-jdk-noble
 
 # Build dependencies
 
-RUN dnf install -y java-17-openjdk maven
+RUN apt-get update && apt-get install -y maven && rm -rf /var/lib/apt/lists/*
 
 # Build Server
 
