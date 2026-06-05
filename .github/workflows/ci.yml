@@ -24,7 +24,7 @@ jobs:
 
       
       - name: 📥 Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🛠️ Checkout Workaround
         # The Checkout GitHub action has problems when running inside of a docker container (as we do).
@@ -43,7 +43,7 @@ jobs:
 
       - name: 🔍 Check for duplicate reports
         id: skip_check
-        uses: fkirc/skip-duplicate-actions@v5
+        uses: fkirc/skip-duplicate-actions@v5.3.1
         with:
           skip_after_successful_duplicate: true
           concurrent_skipping: "same_content_newer"
