@@ -54,7 +54,7 @@ jobs:
         with:
           name: 📋 Unit Test Report
           reporter: java-junit
-          path: "**/*CucumberUnitTest.xml"
+          path: "**/cucumber-reports/CucumberUnitTest.xml"
 
       - name: 📋 Integration Test Report
         uses: phoenix-actions/test-reporting@v8
@@ -62,7 +62,7 @@ jobs:
         with:
           name: 📋 Integration Test Report
           reporter: java-junit
-          path: "**/*CucumberIntegrationTest.xml"
+          path: "**/cucumber-reports/CucumberIntegrationTest.xml"
 
       - name: 👀 Sonar Scan
         if: github.ref == 'refs/heads/master'
