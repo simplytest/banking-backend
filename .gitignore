@@ -1,4 +1,6 @@
-**/allure*
+# Generierte Allure-Ausgaben ignorieren – aber NICHT die Konfig (allure.properties)
+**/allure-results/
+**/allure-report/
 **/target
 **/.class
 

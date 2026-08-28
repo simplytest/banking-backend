@@ -22,6 +22,6 @@ public class ErrorHandler
         var first = errors.get(0);
 
         var error = new ApiError<>(Error.ConstraintViolation, first.getMessage());
-        return new ResponseEntity<>(error, null, HttpStatus.BAD_REQUEST);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 }
