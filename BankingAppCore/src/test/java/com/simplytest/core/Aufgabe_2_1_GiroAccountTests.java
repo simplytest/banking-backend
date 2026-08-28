@@ -30,6 +30,6 @@ public class Aufgabe_2_1_GiroAccountTests {
         Result<Error> result = giroAccount.sendMoney(amount, Iban.random());
 
         Assertions.assertFalse(result.successful(), "Sending money should have failed for amount: " + amount);
-        Assertions.assertEquals(100.0-amount, giroAccount.getBalance(), "Balance should remain unchanged after failed send: " + result.error().name());
+        Assertions.assertEquals(100.0, giroAccount.getBalance(), "Balance should remain unchanged after failed send: " + result.error().name());
     }
 }
