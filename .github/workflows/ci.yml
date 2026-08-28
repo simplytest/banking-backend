@@ -24,7 +24,7 @@ jobs:
 
       
       - name: 📥 Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: 🛠️ Checkout Workaround
         # The Checkout GitHub action has problems when running inside of a docker container (as we do).
@@ -43,13 +43,13 @@ jobs:
 
       - name: 🔍 Check for duplicate reports
         id: skip_check
-        uses: fkirc/skip-duplicate-actions@v5.3.1
+        uses: fkirc/skip-duplicate-actions@b974a9395958c231af965b70070979a577efa578 # v5.3.2
         with:
           skip_after_successful_duplicate: true
           concurrent_skipping: "same_content_newer"
 
       - name: 📋 Unit Test Report
-        uses: phoenix-actions/test-reporting@v8
+        uses: phoenix-actions/test-reporting@7317eea6e13c47348dd0bb318669485157c518d6 # v16
         if: steps.skip_check.outputs.should_skip != 'true' && (success() || failure())
         with:
           name: 📋 Unit Test Report
@@ -57,7 +57,7 @@ jobs:
           path: "**/cucumber-reports/CucumberUnitTest.xml"
 
       - name: 📋 Integration Test Report
-        uses: phoenix-actions/test-reporting@v8
+        uses: phoenix-actions/test-reporting@7317eea6e13c47348dd0bb318669485157c518d6 # v16
         if: steps.skip_check.outputs.should_skip != 'true' && (success() || failure())
         with:
           name: 📋 Integration Test Report
